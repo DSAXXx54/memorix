@@ -376,6 +376,27 @@ async function handleApi(
                 break;
             }
 
+            case '/knowledge': {
+                const { generateKnowledgeBase } = await import('../wiki/generator.js');
+                const { initObservations, getAllObservations } = await import('../memory/observations.js');
+                const { initMiniSkillStore, getMiniSkillStore } = await import('../store/mini-skill-store.js');
+
+                await initObservations(effectiveDataDir);
+                await initMiniSkillStore(effectiveDataDir);
+
+                const allObs = getAllObservations();
+                const skills = await getMiniSkillStore().loadByProject(effectiveProjectId);
+
+                const overview = generateKnowledgeBase({
+                    projectId: effectiveProjectId,
+                    observations: allObs,
+                    miniSkills: skills,
+                });
+
+                sendJson(res, overview);
+                break;
+            }
+
             case '/config': {
                 // Config provenance — shows where each config value comes from
                 const os = await import('node:os');

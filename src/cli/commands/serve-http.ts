@@ -930,6 +930,28 @@ export default defineCommand({
           return;
         }
 
+        if (apiPath === '/knowledge') {
+          const { projectId: kbProjectId, dataDir: kbDataDir } = await resolveRequestProject(url);
+          const { generateKnowledgeBase } = await import('../../wiki/generator.js');
+          const { initObservations, getAllObservations } = await import('../../memory/observations.js');
+          const { initMiniSkillStore, getMiniSkillStore } = await import('../../store/mini-skill-store.js');
+
+          await initObservations(kbDataDir);
+          await initMiniSkillStore(kbDataDir);
+
+          const allObs = getAllObservations();
+          const skills = await getMiniSkillStore().loadByProject(kbProjectId);
+
+          const overview = generateKnowledgeBase({
+            projectId: kbProjectId,
+            observations: allObs,
+            miniSkills: skills,
+          });
+
+          sendJson(overview);
+          return;
+        }
+
         if (apiPath === '/config') {
           const { projectId: configProjectId } = await resolveRequestProject(url);
           const os = await import('node:os');

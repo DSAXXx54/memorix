@@ -147,6 +147,28 @@ const i18n = {
     recentGitMemories: 'Recent Git Memories',
     commit: 'Commit',
     created: 'Created',
+    knowledgeTitle: 'Knowledge Base',
+    knowledgeSubtitle: 'Project-scoped engineering knowledge distilled from durable memory',
+    knowledgeObservationsUsed: 'Observations Used',
+    knowledgeMiniSkillsUsed: 'Mini-skills Used',
+    knowledgeRefs: 'Refs',
+    knowledgeGenerated: 'Generated',
+    knowledgeQuickJump: 'Sections',
+    knowledgeNoItems: 'No entries in this section yet',
+    knowledgeNoItemsDesc: 'This section will fill in as durable project knowledge is stored.',
+    knowledgeUnavailable: 'Knowledge Base Unavailable',
+    knowledgeUnavailableDesc: 'Could not load /api/knowledge for the selected project.',
+    knowledgeEmpty: 'No Knowledge Base Entries',
+    knowledgeEmptyDesc: 'Store durable observations or promote mini-skills to populate this read-only project wiki.',
+    knowledgeProvenance: 'Provenance',
+    knowledgeEntry: 'entry',
+    knowledgeEntries: 'entries',
+    knowledgeSectionProjectOverview: 'Project Overview',
+    knowledgeSectionCoreDecisions: 'Core Decisions',
+    knowledgeSectionOperationalKnowledge: 'Operational Knowledge',
+    knowledgeSectionKnownGotchas: 'Known Gotchas',
+    knowledgeSectionGitBackedFacts: 'Git-backed Facts',
+    knowledgeSectionPromotedSkills: 'Promoted Skills',
 
     // Config
     configTitle: 'Config Provenance',
@@ -333,6 +355,7 @@ const i18n = {
     // Nav tooltips + labels
     navDashboard: 'Dashboard',
     navGitMemory: 'Git Memory',
+    navKnowledge: 'Knowledge Base',
     navGraph: 'Knowledge Graph',
     navObservations: 'Observations',
     navRetention: 'Retention',
@@ -342,6 +365,7 @@ const i18n = {
     navTeam: 'Agent Team',
     navLabelDashboard: 'Overview',
     navLabelGitMemory: 'Git Memory',
+    navLabelKnowledge: 'Knowledge',
     navLabelGraph: 'Graph',
     navLabelObservations: 'Observations',
     navLabelRetention: 'Retention',
@@ -506,17 +530,39 @@ const i18n = {
 
     // Git Memory
     gitMemoryTitle: 'Git 记忆',
-    gitMemorySubtitle: '来自 git 提交的记忆 — 不可变的事实源',
+    gitMemorySubtitle: '来自 git 提交的记忆 — 真实来源且不可变',
     totalGitMemories: 'Git 记忆总数',
-    uniqueCommits: '唯一提交数',
+    uniqueCommits: '唯一提交',
     typeCoverage: '类型覆盖',
     noGitMemory: '暂无 Git 记忆',
     noGitMemoryDesc: '使用以下命令安装 post-commit hook: memorix git-hook-install',
     noGitMemoriesYet: '暂无 Git 记忆',
     noGitMemoriesHint: '安装 post-commit hook 以自动捕获 git 记忆：',
-    recentGitMemories: '最近的 Git 记忆',
+    recentGitMemories: '最近 Git 记忆',
     commit: '提交',
     created: '创建时间',
+    knowledgeTitle: '知识库',
+    knowledgeSubtitle: '从持久项目记忆中提炼出的工程知识',
+    knowledgeObservationsUsed: '使用的观察',
+    knowledgeMiniSkillsUsed: '使用的 Mini-skills',
+    knowledgeRefs: '引用',
+    knowledgeGenerated: '生成于',
+    knowledgeQuickJump: '章节',
+    knowledgeNoItems: '本章节暂无条目',
+    knowledgeNoItemsDesc: '当项目中出现持久知识后，本章节会自动填充。',
+    knowledgeUnavailable: '知识库不可用',
+    knowledgeUnavailableDesc: '无法为所选项目加载 /api/knowledge。',
+    knowledgeEmpty: '暂无知识库条目',
+    knowledgeEmptyDesc: '存储持久观察或提升 mini-skill 后，此只读项目 wiki 会自动填充。',
+    knowledgeProvenance: '来源',
+    knowledgeEntry: '条',
+    knowledgeEntries: '条',
+    knowledgeSectionProjectOverview: '项目概览',
+    knowledgeSectionCoreDecisions: '核心决策',
+    knowledgeSectionOperationalKnowledge: '操作知识',
+    knowledgeSectionKnownGotchas: '已知陷阱',
+    knowledgeSectionGitBackedFacts: 'Git 事实',
+    knowledgeSectionPromotedSkills: '提升技能',
 
     // Config
     configTitle: '配置溯源',
@@ -708,6 +754,7 @@ const i18n = {
     // Nav tooltips
     navDashboard: '仪表盘',
     navGitMemory: 'Git 记忆',
+    navKnowledge: '知识库',
     navGraph: '知识图谱',
     navObservations: '观察记录',
     navRetention: '记忆衰减',
@@ -717,6 +764,7 @@ const i18n = {
     navTeam: 'Agent 团队',
     navLabelDashboard: '概览',
     navLabelGitMemory: 'Git 记忆',
+    navLabelKnowledge: '知识库',
     navLabelGraph: '图谱',
     navLabelObservations: '观察',
     navLabelRetention: '衰减',
@@ -774,8 +822,8 @@ function setLang(lang) {
   if (label) label.textContent = lang === 'en' ? '中文' : 'EN';
 
   // Update nav tooltips + labels
-  const tooltipMap = { dashboard: 'navDashboard', 'git-memory': 'navGitMemory', graph: 'navGraph', observations: 'navObservations', retention: 'navRetention', config: 'navConfig', identity: 'navIdentity', sessions: 'navSessions', team: 'navTeam' };
-  const labelMap = { dashboard: 'navLabelDashboard', 'git-memory': 'navLabelGitMemory', graph: 'navLabelGraph', observations: 'navLabelObservations', retention: 'navLabelRetention', config: 'navLabelConfig', identity: 'navLabelIdentity', sessions: 'navLabelSessions', team: 'navLabelTeam' };
+  const tooltipMap = { dashboard: 'navDashboard', 'git-memory': 'navGitMemory', knowledge: 'navKnowledge', graph: 'navGraph', observations: 'navObservations', retention: 'navRetention', config: 'navConfig', identity: 'navIdentity', sessions: 'navSessions', team: 'navTeam' };
+  const labelMap = { dashboard: 'navLabelDashboard', 'git-memory': 'navLabelGitMemory', knowledge: 'navLabelKnowledge', graph: 'navLabelGraph', observations: 'navLabelObservations', retention: 'navLabelRetention', config: 'navLabelConfig', identity: 'navLabelIdentity', sessions: 'navLabelSessions', team: 'navLabelTeam' };
   document.querySelectorAll('.nav-btn').forEach(b => {
     const page = b.dataset.page;
     if (page && tooltipMap[page]) b.title = t(tooltipMap[page]);
@@ -866,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Router & Navigation
 // ============================================================
 
-const pages = ['dashboard', 'git-memory', 'graph', 'observations', 'retention', 'config', 'identity', 'sessions', 'team'];
+const pages = ['dashboard', 'git-memory', 'knowledge', 'graph', 'observations', 'retention', 'config', 'identity', 'sessions', 'team'];
 let currentPage = 'dashboard';
 
 function navigate(page) {
@@ -1167,6 +1215,7 @@ async function loadPage(page) {
   switch (page) {
     case 'dashboard': await loadDashboard(); break;
     case 'git-memory': await loadGitMemory(); break;
+    case 'knowledge': await loadKnowledge(); break;
     case 'graph': await loadGraph(); break;
     case 'observations': await loadObservations(); break;
     case 'retention': await loadRetention(); break;
@@ -1415,6 +1464,201 @@ function renderPieChart(canvasId, entries, icons) {
   ctx.font = '10px system-ui';
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#888';
   ctx.fillText('total', cx, cy + 10);
+}
+
+async function loadKnowledge() {
+  const container = document.getElementById('page-knowledge');
+  container.innerHTML = '<div class="loading knowledge-loading"><div class="spinner"></div><div class="knowledge-loading-text">' + t('loading') + '</div></div>';
+
+  const kb = await api('knowledge');
+  if (!kb) {
+    container.innerHTML = `
+      <div class="page-header">
+        <h1 class="page-title">${t('knowledgeTitle')}</h1>
+        <p class="page-subtitle">${t('knowledgeSubtitle')}</p>
+      </div>
+      <div class="panel knowledge-error-panel">
+        <div class="panel-body">
+          <div class="knowledge-state-icon"><span class="iconify" data-icon="lucide:book-x"></span></div>
+          <div class="empty-state-title">${t('knowledgeUnavailable')}</div>
+          <div class="empty-state-desc">${t('knowledgeUnavailableDesc')}</div>
+          <button class="team-refresh-btn" id="knowledge-retry-btn" style="margin:16px auto 0;">${t('teamRefresh')}</button>
+        </div>
+      </div>
+    `;
+    const retry = document.getElementById('knowledge-retry-btn');
+    if (retry) retry.addEventListener('click', () => {
+      delete loaded.knowledge;
+      loadPage('knowledge');
+    });
+    return;
+  }
+
+  const sections = normalizeKnowledgeSections(kb.sections || []);
+  const totalItems = sections.reduce((sum, section) => sum + (section.items || []).length, 0);
+  const stats = kb.stats || { observationsUsed: 0, miniSkillsUsed: 0, refs: 0 };
+  const overviewSection = sections.find(s => s.id === 'project-overview');
+  const mainSections = sections.filter(s => s.id !== 'project-overview');
+
+  container.innerHTML = `
+    <div class="knowledge-page-shell">
+      <div class="knowledge-topbar">
+        <div class="page-header knowledge-header">
+          <div class="knowledge-title-block">
+            <h1 class="page-title">${escapeHtml(t('knowledgeTitle'))}</h1>
+            <p class="page-subtitle">${t('knowledgeSubtitle')}</p>
+            <div class="knowledge-project-line" title="${escapeHtml(kb.projectId || '')}">${escapeHtml(kb.projectId || '')}</div>
+          </div>
+          <div class="knowledge-generated">
+            <span>${t('knowledgeGenerated')}</span>
+            <strong>${escapeHtml(formatTime(kb.generatedAt))}</strong>
+          </div>
+        </div>
+
+        <div class="knowledge-stats-grid">
+          <div class="stat-card" data-accent="purple">
+            <div class="stat-label">${t('knowledgeObservationsUsed')}</div>
+            <div class="stat-value">${stats.observationsUsed || 0}</div>
+          </div>
+          <div class="stat-card" data-accent="cyan">
+            <div class="stat-label">${t('knowledgeMiniSkillsUsed')}</div>
+            <div class="stat-value">${stats.miniSkillsUsed || 0}</div>
+          </div>
+          <div class="stat-card" data-accent="green">
+            <div class="stat-label">${t('knowledgeRefs')}</div>
+            <div class="stat-value">${stats.refs || 0}</div>
+          </div>
+        </div>
+
+        <nav class="knowledge-jump" aria-label="${t('knowledgeQuickJump')}">
+          <span class="knowledge-jump-label">${t('knowledgeQuickJump')}</span>
+          ${sections.map(section => `<a href="#${knowledgeAnchor(section.id)}" class="knowledge-jump-chip">${escapeHtml(section.title)} <span>${(section.items || []).length}</span></a>`).join('')}
+        </nav>
+
+        ${overviewSection ? renderKnowledgeOverviewCard(overviewSection) : ''}
+      </div>
+
+      ${totalItems === 0 ? `
+        <div class="panel knowledge-empty-overview">
+          <div class="panel-body">
+            <div class="knowledge-state-icon"><span class="iconify" data-icon="lucide:book-open"></span></div>
+            <div class="empty-state-title">${t('knowledgeEmpty')}</div>
+            <div class="empty-state-desc">${t('knowledgeEmptyDesc')}</div>
+          </div>
+        </div>
+      ` : `
+        <div class="knowledge-sections-region">
+          ${mainSections.map(renderKnowledgeSection).join('')}
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function normalizeKnowledgeSections(sections) {
+  const byId = new Map(sections.map(section => [section.id, section]));
+  const order = [
+    ['project-overview', 'knowledgeSectionProjectOverview'],
+    ['core-decisions', 'knowledgeSectionCoreDecisions'],
+    ['operational-knowledge', 'knowledgeSectionOperationalKnowledge'],
+    ['known-gotchas', 'knowledgeSectionKnownGotchas'],
+    ['git-backed-facts', 'knowledgeSectionGitBackedFacts'],
+    ['promoted-skills', 'knowledgeSectionPromotedSkills'],
+  ];
+  return order.map(([id, titleKey]) => {
+    const section = byId.get(id);
+    const localizedTitle = t(titleKey);
+    if (section) return { ...section, title: localizedTitle };
+    return { id, title: localizedTitle, items: [], empty: true };
+  });
+}
+
+function knowledgeEntryLabel(count) {
+  return count === 1 ? t('knowledgeEntry') : t('knowledgeEntries');
+}
+
+function renderKnowledgeOverviewCard(section) {
+  const item = (section.items || [])[0];
+  if (!item) {
+    return `
+      <section class="knowledge-overview-card knowledge-overview-card--empty" id="${knowledgeAnchor(section.id)}">
+        <div class="knowledge-overview-meta">
+          <span class="knowledge-overview-label">${escapeHtml(section.title)}</span>
+          <span class="knowledge-section-meta">0 ${t('knowledgeEntries')}</span>
+        </div>
+        <div class="knowledge-overview-body">
+          <p class="knowledge-summary">${t('knowledgeNoItemsDesc')}</p>
+        </div>
+      </section>
+    `;
+  }
+  return `
+    <section class="knowledge-overview-card" id="${knowledgeAnchor(section.id)}">
+      <div class="knowledge-overview-meta">
+        <span class="knowledge-overview-label">${escapeHtml(section.title)}</span>
+        <span class="knowledge-overview-title" title="${escapeHtml(item.title || '')}">${escapeHtml(item.title || t('untitled'))}</span>
+      </div>
+      <div class="knowledge-overview-body">
+        <p class="knowledge-summary knowledge-summary--overview">${escapeHtml(item.summary || '')}</p>
+        <div class="knowledge-ref-list">${renderKnowledgeRefs(item.refs || [])}</div>
+      </div>
+    </section>
+  `;
+}
+
+function renderKnowledgeSection(section) {
+  const items = section.items || [];
+  return `
+    <section class="panel knowledge-section" id="${knowledgeAnchor(section.id)}">
+      <div class="panel-header knowledge-section-header">
+        <span class="panel-title">${escapeHtml(section.title)}</span>
+        <span class="knowledge-section-meta">${items.length} ${knowledgeEntryLabel(items.length)}</span>
+      </div>
+      <div class="panel-body knowledge-section-body">
+        ${items.length === 0 ? renderKnowledgeEmptySection() : items.map(renderKnowledgeItem).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderKnowledgeItem(item) {
+  const refs = item.refs || [];
+  return `
+    <article class="knowledge-item">
+      <div class="knowledge-item-head">
+        <h3 title="${escapeHtml(item.title || t('untitled'))}">${escapeHtml(item.title || t('untitled'))}</h3>
+        <span class="type-badge" data-type="${escapeHtml(item.type || 'unknown')}">${escapeHtml(item.type || t('unknown'))}</span>
+      </div>
+      ${item.entityName ? `<div class="knowledge-entity" title="${escapeHtml(item.entityName)}">${escapeHtml(item.entityName)}</div>` : ''}
+      <p class="knowledge-summary">${escapeHtml(item.summary || '')}</p>
+      ${refs.length > 0 ? `<div class="knowledge-ref-list">${renderKnowledgeRefs(refs)}</div>` : ''}
+    </article>
+  `;
+}
+
+function renderKnowledgeRefs(refs) {
+  if (refs.length === 0) return '<span class="knowledge-ref-empty">—</span>';
+  return refs.map(ref => {
+    const kind = ref.kind || 'observation';
+    const title = ref.title ? ` title="${escapeHtml(ref.title)}"` : '';
+    return `<span class="knowledge-ref-chip" data-kind="${escapeHtml(kind)}"${title}>${escapeHtml(ref.id || kind)}</span>`;
+  }).join('');
+}
+
+function renderKnowledgeEmptySection() {
+  return `
+    <div class="knowledge-section-empty">
+      <span class="iconify" data-icon="lucide:circle-dashed"></span>
+      <div>
+        <strong>${t('knowledgeNoItems')}</strong>
+        <span>${t('knowledgeNoItemsDesc')}</span>
+      </div>
+    </div>
+  `;
+}
+
+function knowledgeAnchor(id) {
+  return `knowledge-${String(id || 'section').replace(/[^a-z0-9_-]/gi, '-')}`;
 }
 
 // ============================================================

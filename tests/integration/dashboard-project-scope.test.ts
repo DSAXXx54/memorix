@@ -155,6 +155,36 @@ describe('Standalone Dashboard Project Scope', () => {
     expect(body.nextId).toBe(7);
   });
 
+  it('GET /api/knowledge returns project-scoped Knowledge Base overview', async () => {
+    const { status, body } = await fetchJson('/api/knowledge');
+    expect(status).toBe(200);
+
+    expect(body.title).toBe('Knowledge Base');
+    expect(body.subtitle).toBe('LLM Wiki');
+    expect(body.projectId).toBe(PROJECT_A);
+    expect(body.stats.observationsUsed).toBe(2);
+
+    const titles = body.sections.flatMap((section: any) => section.items.map((item: any) => item.title));
+    expect(titles).toContain('Use JWT');
+    expect(titles).toContain('Token expiry');
+    expect(titles).not.toContain('Use Stripe');
+    expect(titles).not.toContain('Webhook retry');
+  });
+
+  it('GET /api/knowledge?project=... returns requested project knowledge only', async () => {
+    const { status, body } = await fetchJson(`/api/knowledge?project=${encodeURIComponent(PROJECT_B)}`);
+    expect(status).toBe(200);
+
+    expect(body.projectId).toBe(PROJECT_B);
+    expect(body.stats.observationsUsed).toBe(2);
+
+    const titles = body.sections.flatMap((section: any) => section.items.map((item: any) => item.title));
+    expect(titles).toContain('Use Stripe');
+    expect(titles).toContain('Webhook retry');
+    expect(titles).not.toContain('Use JWT');
+    expect(titles).not.toContain('Token expiry');
+  });
+
   it('GET /api/projects counts only active observations per project', async () => {
     const { status, body } = await fetchJson('/api/projects');
     expect(status).toBe(200);
