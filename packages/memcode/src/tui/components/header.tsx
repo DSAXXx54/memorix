@@ -1,33 +1,25 @@
 /**
- * Header - single-line meta info bar.
+ * Header - single-line metadata bar.
  *
- * Shows: brand, project name, git branch + dirty count + ahead/behind,
- * retrieval mode, memory count, session id, and optional background task
- * indicator.
- *
- * Uses the shared git integration for branch and working-tree status.
+ * Layout: memorix · main · 1530 memories · session:a3f9k
+ * All muted, no background, one line.
  */
 
 import { useEffect, useState } from "react";
-import { createTextAttributes } from "@opentui/core";
 import { getGitInfo, type GitInfo } from "../integrations/git.ts";
 import { theme } from "../theme.ts";
-
-const BOLD = createTextAttributes({ bold: true });
 
 interface HeaderProps {
 	cwd: string;
 	memoryCount: number;
 	sessionId: string;
-	backgroundTasks?: boolean;
-	retrievalMode?: string;
 }
 
+const SEP = " · ";
 const INIT_GIT: GitInfo = { branch: "...", dirty: false, dirtyCount: 0, ahead: 0, behind: 0 };
 
-function Header({ cwd, memoryCount, sessionId, backgroundTasks, retrievalMode }: HeaderProps) {
+function Header({ cwd, memoryCount, sessionId }: HeaderProps) {
 	const [git, setGit] = useState<GitInfo>(INIT_GIT);
-	const projectName = cwd.replace(/\\/g, "/").split("/").pop() ?? cwd;
 
 	useEffect(() => {
 		let cancelled = false;
@@ -39,31 +31,22 @@ function Header({ cwd, memoryCount, sessionId, backgroundTasks, retrievalMode }:
 		};
 	}, [cwd]);
 
-	const hasMemories = memoryCount > 0;
+	const shortId = sessionId.length > 6 ? sessionId.slice(-6) : sessionId;
 
 	return (
 		<box height={1} paddingLeft={1} paddingRight={1}>
 			<text>
-				<span fg={theme.brand} attributes={BOLD}>◆ memcode</span>
-				<span fg={theme.textPrimary}>{"  "}{projectName}</span>
-				<span fg={theme.gitBranch}>{"  "}{git.branch}</span>
-				{git.dirtyCount > 0 && (
-					<span fg={theme.gitModified}>±{git.dirtyCount}</span>
+				<span fg={theme.textMuted}>memorix</span>
+				<span fg={theme.textMuted}>{SEP}</span>
+				<span fg={theme.gitBranch}>{git.branch}</span>
+				{memoryCount > 0 && (
+					<>
+						<span fg={theme.textMuted}>{SEP}</span>
+						<span fg={theme.textMuted}>{memoryCount} memories</span>
+					</>
 				)}
-				{git.ahead > 0 && (
-					<span fg={theme.info}>{" ↑"}{git.ahead}</span>
-				)}
-				{git.behind > 0 && (
-					<span fg={theme.warning}>{" ↓"}{git.behind}</span>
-				)}
-				<span fg={theme.textMuted}>{"  "}{retrievalMode ?? "BM25"}</span>
-				<span fg={hasMemories ? theme.success : theme.textMuted}>
-					{"  "}{memoryCount}mem
-				</span>
-				<span fg={theme.textMuted}>{"  "}sess:{sessionId}</span>
-				{backgroundTasks && (
-					<span fg={theme.warning}>{"  "}[bg]</span>
-				)}
+				<span fg={theme.textMuted}>{SEP}</span>
+				<span fg={theme.textMuted}>session:{shortId}</span>
 			</text>
 		</box>
 	);
