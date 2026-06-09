@@ -10,7 +10,10 @@ import { configureHttpDispatcher } from "./core/http-dispatcher.ts";
 import { main } from "./main.ts";
 
 process.title = APP_NAME;
-process.env.PI_CODING_AGENT = "true";
+process.env.MEMCODE_CODING_AGENT = "true";
+// Default embedding to "auto" so memcode uses local embeddings (fastembed/transformers)
+// when available, falling back to BM25. Users can still override via MEMORIX_EMBEDDING env var.
+process.env.MEMORIX_EMBEDDING = process.env.MEMORIX_EMBEDDING || "auto";
 process.emitWarning = (() => {}) as typeof process.emitWarning;
 
 // Configure undici's global dispatcher before provider SDKs issue requests.
