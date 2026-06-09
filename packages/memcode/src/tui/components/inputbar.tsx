@@ -21,7 +21,7 @@ import {
 	useMemo,
 	useCallback,
 	useEffect,
-} from "react";
+} from "@opentui/react";
 import { useKeyboard } from "@opentui/react";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

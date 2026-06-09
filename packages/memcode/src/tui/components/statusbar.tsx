@@ -7,7 +7,7 @@
  * Hidden when status is empty and mode is INSERT.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "@opentui/react";
 import { createTextAttributes } from "@opentui/core";
 import type { VimMode } from "../keymap.ts";
 import { theme } from "../theme.ts";

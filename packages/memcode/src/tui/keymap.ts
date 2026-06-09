@@ -28,7 +28,7 @@
  *   /vim    — toggle vim mode off (back to INSERT)
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "@opentui/react";
 import { useKeyboard } from "@opentui/react";
 
 // ============================================================================
