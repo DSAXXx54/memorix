@@ -11,7 +11,7 @@
  * interaction patterns as InputBar's suggestion panel.
  */
 
-import { useState, useMemo, useCallback, useEffect } from "@opentui/react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useKeyboard } from "@opentui/react";
 import { theme } from "../theme.ts";
 

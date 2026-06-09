@@ -7,7 +7,7 @@
  * Auto-dismisses after 2500ms. Supports info, success, error types.
  */
 
-import { useCallback, useEffect, useRef, useState } from "@opentui/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { theme } from "../theme.ts";
 
 // ---------------------------------------------------------------------------

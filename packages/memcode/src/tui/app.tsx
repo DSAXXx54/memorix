@@ -10,7 +10,7 @@
  * has current code context without explicit /git commands.
  */
 
-import { useState, useCallback, useEffect, useRef } from "@opentui/react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { AgentSessionRuntime } from "../core/agent-session-runtime.ts";
 import type { AgentSessionEvent } from "../core/agent-session.ts";
 import { theme } from "./theme.ts";

@@ -14,7 +14,7 @@
  *   ]);
  */
 
-import { useState, useCallback, useRef } from "@opentui/react";
+import { useState, useCallback, useRef } from "react";
 import { useKeyboard } from "@opentui/react";
 import { createTextAttributes } from "@opentui/core";
 import { theme } from "../theme.ts";

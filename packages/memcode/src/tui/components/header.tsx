@@ -8,7 +8,7 @@
  * Uses the shared git integration for branch and working-tree status.
  */
 
-import { useEffect, useState } from "@opentui/react";
+import { useEffect, useState } from "react";
 import { createTextAttributes } from "@opentui/core";
 import { getGitInfo, type GitInfo } from "../integrations/git.ts";
 import { theme } from "../theme.ts";

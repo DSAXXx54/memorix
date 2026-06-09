@@ -5,7 +5,7 @@
  * (with native markdown rendering), and memory attribution footers.
  */
 
-import { useEffect, useRef, forwardRef, useImperativeHandle } from "@opentui/react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { SyntaxStyle, createTextAttributes } from "@opentui/core";
 import { theme } from "../theme.ts";
 

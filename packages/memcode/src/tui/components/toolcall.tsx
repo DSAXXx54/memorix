@@ -13,7 +13,7 @@
  *     hello
  */
 
-import { useEffect, useState, useCallback } from "@opentui/react";
+import { useEffect, useState, useCallback } from "react";
 import { SyntaxStyle } from "@opentui/core";
 import { useKeyboard } from "@opentui/react";
 import { theme } from "../theme.ts";
