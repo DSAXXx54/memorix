@@ -73,6 +73,7 @@ import type {
 	ProjectTrustContext,
 } from "../../core/extensions/index.ts";
 import { FooterDataProvider, type ReadonlyFooterDataProvider } from "../../core/footer-data-provider.ts";
+import { importFromMemorix } from "../../core/memorix-resolve.ts";
 import { configureHttpDispatcher, formatHttpIdleTimeoutMs } from "../../core/http-dispatcher.ts";
 import { type AppKeybinding, KeybindingsManager } from "../../core/keybindings.ts";
 import { createCompactionSummaryMessage } from "../../core/messages.ts";
@@ -4160,8 +4161,8 @@ export class InteractiveMode {
 	 */
 	private async initMemoryStatus(): Promise<void> {
 		try {
-			const { detectProject } = await import("../../../../src/project/detector.js");
-			const { initObservations, getObservationCount } = await import("../../../../src/memory/observations.js");
+			const { detectProject } = await importFromMemorix("project/detector.js");
+			const { initObservations, getObservationCount } = await importFromMemorix("memory/observations.js");
 
 			const cwd = this.sessionManager.getCwd();
 			const project = detectProject(cwd);

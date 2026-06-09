@@ -16,10 +16,11 @@
  */
 
 import type { ExtensionContext } from '../core/extensions/types.ts';
+import { importFromMemorix } from '../core/memorix-resolve.ts';
 
-// Dynamic import for memorix core — avoids rootDir conflicts in tsc
+// Dynamic import for memorix core — uses file:// URLs for Windows ESM compatibility
 async function getCompactSearch() {
-	const mod = await import('../../../../src/compact/engine.js');
+	const mod = await importFromMemorix('compact/engine.js');
 	return mod.compactSearch;
 }
 

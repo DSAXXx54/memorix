@@ -9,10 +9,12 @@
  * All memory operations are in-process (no MCP transport).
  */
 
+import { join } from "node:path";
 import type { ExtensionAPI } from "../core/extensions/types.ts";
 import { memorixSearchTool, memorixStoreTool, memorixDetailTool } from "../tools/memory-tools.ts";
 import { createMemoryInjectionHandler } from "../memory/memory-injection.ts";
 import { storeMemoryFromTurn } from "../memory/memory-storage.ts";
+import { importFromMemorix } from "../core/memorix-resolve.ts";
 
 export default function memoryExtension(pi: ExtensionAPI): void {
 	// Register memory tools
@@ -23,7 +25,7 @@ export default function memoryExtension(pi: ExtensionAPI): void {
 	// Resolve projectId from cwd using memorix project detection
 	async function getProjectId(cwd: string): Promise<string> {
 		try {
-			const { detectProject } = await import("../../../../src/project/detector.js");
+			const { detectProject } = await importFromMemorix("project/detector.js");
 			return detectProject(cwd)?.id ?? cwd;
 		} catch {
 			return cwd;

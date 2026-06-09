@@ -7,22 +7,23 @@
 
 import { Type } from "typebox";
 import type { ToolDefinition } from "../core/extensions/types.ts";
+import { importFromMemorix } from "../core/memorix-resolve.ts";
 
-// Dynamic imports for memorix core — avoids rootDir conflicts in tsc
+// Dynamic imports for memorix core — uses file:// URLs for Windows ESM compatibility
 async function getCompactSearch() {
-	const mod = await import("../../../../src/compact/engine.js");
+	const mod = await importFromMemorix("compact/engine.js");
 	return mod.compactSearch;
 }
 async function getCompactDetail() {
-	const mod = await import("../../../../src/compact/engine.js");
+	const mod = await importFromMemorix("compact/engine.js");
 	return mod.compactDetail;
 }
 async function getStoreObservation() {
-	const mod = await import("../../../../src/memory/observations.js");
+	const mod = await importFromMemorix("memory/observations.js");
 	return mod.storeObservation;
 }
 async function getDetectProject() {
-	const mod = await import("../../../../src/project/detector.js");
+	const mod = await importFromMemorix("project/detector.js");
 	return mod.detectProject;
 }
 

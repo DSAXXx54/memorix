@@ -9,6 +9,7 @@ type FakeUi = {
 
 type HandleCtrlZThis = {
 	ui: FakeUi;
+	showStatus: (message: string) => void;
 };
 
 type ProcessSignalHandler = () => void;
@@ -63,12 +64,15 @@ describe("InteractiveMode.handleCtrlZ", () => {
 	});
 
 	test("keeps the process alive while suspended and restores the TUI on SIGCONT", () => {
+		const platformDescriptor = Object.getOwnPropertyDescriptor(process, "platform");
+		Object.defineProperty(process, "platform", { configurable: true, value: "linux" });
+
 		const ui: FakeUi = {
 			start: vi.fn(),
 			stop: vi.fn(),
 			requestRender: vi.fn(),
 		};
-		const context: HandleCtrlZThis = { ui };
+		const context: HandleCtrlZThis = { ui, showStatus: vi.fn() };
 		const keepAliveHandle = setTimeout(() => undefined, 0);
 		clearTimeout(keepAliveHandle);
 
@@ -94,7 +98,8 @@ describe("InteractiveMode.handleCtrlZ", () => {
 			.mockImplementation(((_event: string, _listener: () => void) => process) as typeof process.removeListener);
 		const processKillSpy = vi.spyOn(process, "kill").mockImplementation(() => true);
 
-		callHandleCtrlZ(context);
+		try {
+			callHandleCtrlZ(context);
 
 		expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 2 ** 30);
 		expect(processOnSpy).toHaveBeenCalledWith("SIGINT", expect.any(Function));
@@ -110,15 +115,22 @@ describe("InteractiveMode.handleCtrlZ", () => {
 		expect(removeListenerSpy).toHaveBeenCalledWith("SIGINT", sigintHandler);
 		expect(ui.start).toHaveBeenCalledTimes(1);
 		expect(ui.requestRender).toHaveBeenCalledWith(true);
+		} finally {
+			if (platformDescriptor) {
+				Object.defineProperty(process, "platform", platformDescriptor);
+			}
+		}
 	});
 
 	test("cleans up the temporary handlers if suspension fails", () => {
+		const platformDescriptor = Object.getOwnPropertyDescriptor(process, "platform");
+		Object.defineProperty(process, "platform", { configurable: true, value: "linux" });
 		const ui: FakeUi = {
 			start: vi.fn(),
 			stop: vi.fn(),
 			requestRender: vi.fn(),
 		};
-		const context: HandleCtrlZThis = { ui };
+		const context: HandleCtrlZThis = { ui, showStatus: vi.fn() };
 		const keepAliveHandle = setTimeout(() => undefined, 0);
 		clearTimeout(keepAliveHandle);
 		const suspendError = new Error("suspend failed");
@@ -138,12 +150,18 @@ describe("InteractiveMode.handleCtrlZ", () => {
 			throw suspendError;
 		});
 
-		expect(() => callHandleCtrlZ(context)).toThrow(suspendError);
-		expect(ui.stop).toHaveBeenCalledTimes(1);
-		expect(setIntervalSpy).toHaveBeenCalledTimes(1);
-		expect(clearIntervalSpy).toHaveBeenCalledWith(keepAliveHandle);
-		expect(removeListenerSpy).toHaveBeenCalledWith("SIGINT", expect.any(Function));
-		expect(ui.start).not.toHaveBeenCalled();
-		expect(ui.requestRender).not.toHaveBeenCalled();
+		try {
+			expect(() => callHandleCtrlZ(context)).toThrow(suspendError);
+			expect(ui.stop).toHaveBeenCalledTimes(1);
+			expect(setIntervalSpy).toHaveBeenCalledTimes(1);
+			expect(clearIntervalSpy).toHaveBeenCalledWith(keepAliveHandle);
+			expect(removeListenerSpy).toHaveBeenCalledWith("SIGINT", expect.any(Function));
+			expect(ui.start).not.toHaveBeenCalled();
+			expect(ui.requestRender).not.toHaveBeenCalled();
+		} finally {
+			if (platformDescriptor) {
+				Object.defineProperty(process, "platform", platformDescriptor);
+			}
+		}
 	});
 });

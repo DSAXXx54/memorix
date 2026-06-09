@@ -18,8 +18,10 @@
  *   3. The session manager has already persisted entries
  */
 
+import { join } from "node:path";
 import type { AgentMessage } from "@memorix/agent-core";
 import type { AssistantMessage, TextContent } from "@memorix/ai";
+import { importFromMemorix } from "../core/memorix-resolve.ts";
 
 // ─── Configuration ──────────────────────────────────────────────────
 
@@ -159,10 +161,8 @@ export async function storeMemoryFromTurn(
 
 	try {
 		// Import storeObservation from memorix core.
-		// Path: packages/memcode/src/memory/ -> ../../../../src/memory/observations.js
-		// This crosses package boundaries within the monorepo — intentional for
-		// the memcode agent to persist into the shared Memorix store.
-		const { storeObservation } = await import("../../../../src/memory/observations.js");
+		// Uses importFromMemorix() with file:// URLs for Windows ESM compatibility.
+		const { storeObservation } = await importFromMemorix("memory/observations.js");
 
 		await storeObservation({
 			entityName,

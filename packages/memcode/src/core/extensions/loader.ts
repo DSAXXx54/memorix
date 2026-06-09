@@ -84,11 +84,11 @@ function getAliases(): Record<string, string> {
 		if (fs.existsSync(workspacePath)) {
 			return workspacePath;
 		}
-		return fileURLToPath(import.meta.resolve(specifier));
+		return require.resolve(specifier);
 	};
 
 	const piCodingAgentEntry = packageIndex;
-	const piAgentCoreEntry = resolveWorkspaceOrImport("agent/dist/index.js", "@memorix/agent-core");
+	const piAgentCoreEntry = resolveWorkspaceOrImport("agent-core/dist/index.js", "@memorix/agent-core");
 	const piTuiEntry = resolveWorkspaceOrImport("tui/dist/index.js", "@memorix/tui");
 	const piAiEntry = resolveWorkspaceOrImport("ai/dist/index.js", "@memorix/ai");
 	const piAiOauthEntry = resolveWorkspaceOrImport("ai/dist/oauth.js", "@memorix/ai/oauth");
