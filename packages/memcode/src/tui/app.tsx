@@ -223,10 +223,12 @@ function App({ runtime }: AppProps) {
 	}
 
 	// --- RENDER: SESSION VIEW ---
+	// OpenCode pattern: scrollbox (flexGrow=1) for messages + flexShrink=0 bottom area
+	// containing status, then input. Input is ALWAYS at the bottom.
 	return (
 		<box width="100%" height="100%" backgroundColor={theme.bgBase} flexDirection="column">
-			{/* Messages scrollbox — takes remaining space */}
-			<box flexGrow={1} flexDirection="column" paddingTop={1} paddingBottom={1} paddingLeft={1} paddingRight={1}>
+			{/* Messages scrollbox — takes ALL remaining space */}
+			<scrollbox flexGrow={1} stickyScroll={true} stickyStart="bottom" flexDirection="column" paddingTop={1} paddingBottom={1} paddingLeft={1} paddingRight={1}>
 				{/* Project info line at top */}
 				<box flexDirection="row" justifyContent="center" marginBottom={1}>
 					<text fg={theme.textMuted}>
@@ -244,26 +246,29 @@ function App({ runtime }: AppProps) {
 					<box flexDirection="column" paddingLeft={2} paddingRight={2}>
 						<text fg={theme.textSecondary}>{"memcode"}</text>
 						<box border={["left"]} borderColor={theme.borderSubtle} paddingLeft={1}>
-							<text fg={theme.textPrimary} >{streamingContent.slice(0, 2000)}</text>
+							<text fg={theme.textPrimary}>{streamingContent.slice(0, 2000)}</text>
 						</box>
 					</box>
 				) : null}
+			</scrollbox>
 
-				{/* Status */}
+			{/* Bottom fixed area — status ABOVE input, then input, then footer */}
+			<box flexShrink={0} flexDirection="column">
+				{/* Status — above the input, not in the middle of messages */}
 				{status ? (
-					<box flexDirection="row" justifyContent="center" marginTop={1}>
+					<box flexDirection="row" paddingLeft={2} paddingRight={2} paddingTop={0}>
 						<text fg={theme.textSecondary}>{status}</text>
 					</box>
 				) : null}
-			</box>
 
-			{/* Input bar — fixed at bottom */}
-			<box flexShrink={0} paddingLeft={1} paddingRight={1} paddingBottom={1}>
-				<InputBar
-					onSend={handleSend}
-					vimMode={keymap.vimMode}
-					onSwitchToNormal={() => keymap.setVimMode("NORMAL")}
-				/>
+				{/* Input bar */}
+				<box paddingLeft={1} paddingRight={1} paddingBottom={1}>
+					<InputBar
+						onSend={handleSend}
+						vimMode={keymap.vimMode}
+						onSwitchToNormal={() => keymap.setVimMode("NORMAL")}
+					/>
+				</box>
 			</box>
 
 			{/* Footer — fixed at very bottom */}

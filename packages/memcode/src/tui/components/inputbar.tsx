@@ -149,11 +149,6 @@ async function searchMemories(query: string): Promise<MemoryEntry[]> {
 	}
 }
 
-/** Estimate token count (~4 characters per token). */
-function estimateTokens(text: string): number {
-	return Math.ceil(text.length / 4);
-}
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -775,9 +770,6 @@ export function InputBar({ onSend, attachments = [], vimMode, onSwitchToNormal }
 
 	// --- Derived display values ---
 
-	const isMultiline = inputText.includes("\n");
-	const lineCount = isMultiline ? inputText.split("\n").length : 1;
-
 	const displayMode =
 		activeMode === "reverse"
 			? "search"
@@ -930,7 +922,7 @@ export function InputBar({ onSend, attachments = [], vimMode, onSwitchToNormal }
 				</box>
 			) : null}
 
-			{/* ── Main input row ── */}
+			{/* ── Main input row — clean like OpenCode: just prompt indicator + input ── */}
 			<box
 				width="100%"
 				height={1}
@@ -942,19 +934,7 @@ export function InputBar({ onSend, attachments = [], vimMode, onSwitchToNormal }
 				gap={1}
 				backgroundColor={theme.bgBase}
 			>
-				{/* Attachment button */}
-				<text fg={theme.info} flexShrink={0}>
-					{"\u{1F4CE}"} attach
-				</text>
-
-				{/* Multiline indicator */}
-				{isMultiline ? (
-					<text fg={theme.warning} flexShrink={0}>
-						NL:{lineCount}
-					</text>
-				) : null}
-
-				<text fg={theme.textMuted} flexShrink={0}>
+				<text fg={theme.brand} flexShrink={0}>
 					{">"}
 				</text>
 
@@ -965,7 +945,7 @@ export function InputBar({ onSend, attachments = [], vimMode, onSwitchToNormal }
 						placeholder={
 							activeMode === "reverse"
 								? "search history..."
-								: "type here..."
+								: "ask anything..."
 						}
 						placeholderColor={theme.textMuted}
 						textColor={theme.textPrimary}
@@ -979,24 +959,21 @@ export function InputBar({ onSend, attachments = [], vimMode, onSwitchToNormal }
 						}}
 					/>
 				</box>
+			</box>
 
-				{/* Multiline line hint */}
-				{isMultiline ? (
-					<text fg={theme.textMuted} flexShrink={0}>
-						{"S+Ent"}
-					</text>
-				) : null}
-
-				{/* Token count */}
-				<text fg={theme.textMuted} flexShrink={0}>
-					{inputText.length > 0
-						? `${estimateTokens(inputText)}tok`
-						: "0tok"}
-				</text>
-
-				{/* Escape hint */}
-				<text fg={theme.textMuted} flexShrink={0}>
-					[esc]
+			{/* ── Model info row — like OpenCode's agent/model metadata ── */}
+			<box
+				width="100%"
+				height={1}
+				flexDirection="row"
+				flexShrink={0}
+				justifyContent="space-between"
+				paddingLeft={2}
+				paddingRight={1}
+			>
+				<text fg={theme.brand}>memcode</text>
+				<text fg={theme.textMuted}>
+					{activeMode === "slash" ? "/ commands" : "esc interrupt"}
 				</text>
 			</box>
 		</box>
