@@ -82,13 +82,16 @@ export function getLLMBaseUrl(providerDefault) {
 }
 /** TUI/chat agent LLM API key: agent env > agent config > memory LLM fallback */
 export function getAgentLLMApiKey() {
-    return (process.env.MEMORIX_AGENT_LLM_API_KEY ||
+    return (process.env.MEMORIX_AGENT_API_KEY ||
+        process.env.MEMORIX_AGENT_LLM_API_KEY ||
         loadYamlConfig().agent?.apiKey ||
         loadFileConfig().agent?.apiKey ||
         getLLMApiKey());
 }
 /** TUI/chat agent LLM provider: agent env > agent config > memory LLM fallback */
 export function getAgentLLMProvider() {
+    if (process.env.MEMORIX_AGENT_PROVIDER)
+        return process.env.MEMORIX_AGENT_PROVIDER;
     if (process.env.MEMORIX_AGENT_LLM_PROVIDER)
         return process.env.MEMORIX_AGENT_LLM_PROVIDER;
     const yml = loadYamlConfig();
@@ -101,14 +104,16 @@ export function getAgentLLMProvider() {
 }
 /** TUI/chat agent LLM model: agent env > agent config > memory LLM fallback */
 export function getAgentLLMModel(providerDefault) {
-    return (process.env.MEMORIX_AGENT_LLM_MODEL ||
+    return (process.env.MEMORIX_AGENT_MODEL ||
+        process.env.MEMORIX_AGENT_LLM_MODEL ||
         loadYamlConfig().agent?.model ||
         loadFileConfig().agent?.model ||
         getLLMModel(providerDefault));
 }
 /** TUI/chat agent LLM base URL: agent env > agent config > memory LLM fallback */
 export function getAgentLLMBaseUrl(providerDefault) {
-    return (process.env.MEMORIX_AGENT_LLM_BASE_URL ||
+    return (process.env.MEMORIX_AGENT_BASE_URL ||
+        process.env.MEMORIX_AGENT_LLM_BASE_URL ||
         loadYamlConfig().agent?.baseUrl ||
         loadFileConfig().agent?.baseUrl ||
         getLLMBaseUrl(providerDefault));

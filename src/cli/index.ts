@@ -1017,11 +1017,8 @@ const main = defineCommand({
       meta: { name: 'memcode', description: 'Enter memcode TUI — native coding agent with memory' },
       async run() {
         try {
-          ensureMemcodePackageDir();
-          // IMPORTANT: PI_PACKAGE_DIR must be set BEFORE this import —
-          // config.ts module-level code reads it on first load.
-          const { main } = await import('@memorix/memcode');
-          await main(process.argv.slice(3));
+          const { runCli } = await import('@memorix/memcode');
+          await runCli(process.argv.slice(3));
         } catch (err) {
           console.error('Failed to start memcode:', err instanceof Error ? err.message : err);
           process.exit(1);
@@ -1045,11 +1042,8 @@ const main = defineCommand({
     // No subcommand provided — enter memcode TUI (native coding agent)
     if (!firstArg) {
       try {
-        ensureMemcodePackageDir();
-        // IMPORTANT: PI_PACKAGE_DIR must be set BEFORE this import —
-        // config.ts module-level code reads it on first load.
-        const { main } = await import('@memorix/memcode');
-        await main(process.argv.slice(2));
+        const { runCli } = await import('@memorix/memcode');
+        await runCli(process.argv.slice(2));
         return;
       } catch (err) {
         console.error('Failed to start memcode:', err instanceof Error ? err.message : err);

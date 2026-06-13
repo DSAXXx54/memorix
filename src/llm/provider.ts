@@ -17,7 +17,7 @@ import {
   getLLMBaseUrl,
   getLLMModel,
   getLLMProvider,
-} from '../config.ts';
+} from '../config.js';
 
 export interface LLMConfig {
   provider: 'openai' | 'anthropic' | 'openrouter' | 'custom';
