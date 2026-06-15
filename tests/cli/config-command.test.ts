@@ -157,6 +157,12 @@ describe('memorix config commands', () => {
       'llm:',
       '  provider: deepseek',
       '  model: deepseek-chat',
+      'git:',
+      '  autoHook: true',
+      '  maxDiffSize: 2048',
+      '  excludePatterns:',
+      '    - dist/**',
+      '    - "*.lock"',
       'behavior:',
       '  sessionInject: minimal',
     ].join('\n'), 'utf8');
@@ -171,6 +177,10 @@ describe('memorix config commands', () => {
     const content = readFileSync(target, 'utf8');
     expect(content).toContain('[memory.llm]');
     expect(content).toContain('provider = "deepseek"');
+    expect(content).toContain('[git]');
+    expect(content).toContain('auto_hook = true');
+    expect(content).toContain('max_diff_size = 2048');
+    expect(content).toContain('exclude_patterns = ["dist/**", "*.lock"]');
     expect(content).not.toContain('env-secret-key-that-must-not-be-written');
   });
 

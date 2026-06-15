@@ -52,6 +52,14 @@ inject = "minimal"
 formation = "active"
 auto_cleanup = true
 
+[git]
+auto_hook = false
+ingest_on_commit = true
+max_diff_size = 500
+skip_merge_commits = true
+exclude_patterns = ["*.lock", "dist/**"]
+noise_keywords = ["format", "typo"]
+
 [server]
 transport = "stdio"
 dashboard = true
@@ -154,6 +162,23 @@ Common keys:
 - `inject = "minimal"` (`full`, `minimal`, `silent`)
 - `formation = "active"` (`active`, `shadow`, `fallback`)
 - `auto_cleanup = true`
+
+### `[git]`
+
+Git-memory and hook behavior.
+
+Common keys:
+
+- `auto_hook = false`
+- `ingest_on_commit = true`
+- `max_diff_size = 500`
+- `skip_merge_commits = true`
+- `exclude_patterns = ["*.lock", "dist/**"]`
+- `noise_keywords = ["format", "typo"]`
+
+Project identity is still resolved from the real `.git` root. A project
+`memorix.toml` is an override file under that root; it does not create or rename
+the Memorix project ID.
 
 ### `[server]`
 

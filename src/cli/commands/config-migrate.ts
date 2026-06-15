@@ -75,6 +75,15 @@ export function serializeResolvedConfigToToml(
     auto_cleanup: config.memory.autoCleanup,
   });
 
+  writeSection(lines, 'git', {
+    auto_hook: config.git.autoHook,
+    ingest_on_commit: config.git.ingestOnCommit,
+    max_diff_size: config.git.maxDiffSize,
+    skip_merge_commits: config.git.skipMergeCommits,
+    exclude_patterns: config.git.excludePatterns,
+    noise_keywords: config.git.noiseKeywords,
+  });
+
   writeSection(lines, 'server', {
     transport: config.server.transport,
     dashboard: config.server.dashboard,
@@ -85,7 +94,7 @@ export function serializeResolvedConfigToToml(
   return `${lines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd()}\n`;
 }
 
-function writeSection(lines: string[], name: string, values: Record<string, string | number | boolean | undefined>): void {
+function writeSection(lines: string[], name: string, values: Record<string, string | number | boolean | string[] | undefined>): void {
   const entries = Object.entries(values).filter(([, value]) => value !== undefined);
   if (entries.length === 0) return;
   lines.push(`[${name}]`);
@@ -95,7 +104,8 @@ function writeSection(lines: string[], name: string, values: Record<string, stri
   lines.push('');
 }
 
-function formatTomlValue(value: string | number | boolean): string {
+function formatTomlValue(value: string | number | boolean | string[]): string {
+  if (Array.isArray(value)) return `[${value.map((entry) => formatTomlValue(entry)).join(', ')}]`;
   if (typeof value === 'string') return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   return String(value);
 }

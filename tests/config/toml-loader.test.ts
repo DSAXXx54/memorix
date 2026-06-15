@@ -55,6 +55,13 @@ describe('loadTomlConfig', () => {
       '',
       '[server]',
       'dashboard = true',
+      '',
+      '[git]',
+      'auto_hook = true',
+      'ingest_on_commit = false',
+      'max_diff_size = 2048',
+      'skip_merge_commits = false',
+      'exclude_patterns = ["dist/**", "*.lock"]',
     ].join('\n'), 'utf8');
 
     const cfg = loadTomlConfig({ projectRoot: null, homeDir: HOME });
@@ -63,5 +70,10 @@ describe('loadTomlConfig', () => {
     expect(cfg.memory?.llm?.provider).toBe('openai');
     expect(cfg.embedding?.dimensions).toBe(1024);
     expect(cfg.server?.dashboard).toBe(true);
+    expect(cfg.git?.auto_hook).toBe(true);
+    expect(cfg.git?.ingest_on_commit).toBe(false);
+    expect(cfg.git?.max_diff_size).toBe(2048);
+    expect(cfg.git?.skip_merge_commits).toBe(false);
+    expect(cfg.git?.exclude_patterns).toEqual(['dist/**', '*.lock']);
   });
 });

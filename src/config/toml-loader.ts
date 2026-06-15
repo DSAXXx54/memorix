@@ -31,6 +31,14 @@ export interface MemorixTomlConfig {
     native_memcode?: boolean;
     external_agents?: boolean;
   };
+  git?: {
+    auto_hook?: boolean;
+    ingest_on_commit?: boolean;
+    max_diff_size?: number;
+    skip_merge_commits?: boolean;
+    exclude_patterns?: string[];
+    noise_keywords?: string[];
+  };
   server?: {
     transport?: 'stdio' | 'http';
     dashboard?: boolean;
@@ -82,6 +90,7 @@ function mergeTomlConfig(base: MemorixTomlConfig, override: MemorixTomlConfig): 
     },
     embedding: { ...base.embedding, ...override.embedding },
     hooks: { ...base.hooks, ...override.hooks },
+    git: { ...base.git, ...override.git },
     server: { ...base.server, ...override.server },
   };
 }

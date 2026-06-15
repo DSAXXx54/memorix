@@ -108,6 +108,7 @@ export default defineCommand({
       diagLines.push(`  Memory LLM lane: ${formatLane(resolved.memory.llm.provider, resolved.memory.llm.model, resolved.memory.llm.baseUrl, resolved.memory.llm.apiKey)}`);
       diagLines.push(`  Embedding lane:  ${formatLane(resolved.embedding.provider, resolved.embedding.model, resolved.embedding.baseUrl, resolved.embedding.apiKey)}`);
       diagLines.push(`  Memory behavior: inject=${resolved.memory.inject ?? 'default'}, formation=${resolved.memory.formation ?? 'default'}, autoCleanup=${resolved.memory.autoCleanup ?? 'default'}`);
+      diagLines.push(`  Git behavior:    autoHook=${resolved.git.autoHook ?? 'default'}, ingestOnCommit=${resolved.git.ingestOnCommit ?? 'default'}, maxDiffSize=${resolved.git.maxDiffSize ?? 'default'}, skipMergeCommits=${resolved.git.skipMergeCommits ?? 'default'}`);
       diagLines.push(`  Server:          transport=${resolved.server.transport ?? 'default'}, dashboard=${resolved.server.dashboard ?? 'default'}, dashboardPort=${resolved.server.dashboardPort ?? 'default'}`);
 
       // Git hook status (worktree-safe)

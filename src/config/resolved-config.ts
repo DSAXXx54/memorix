@@ -42,6 +42,14 @@ export interface ResolvedMemorixConfig {
     apiKey?: string;
     dimensions?: number;
   };
+  git: {
+    autoHook?: boolean;
+    ingestOnCommit?: boolean;
+    maxDiffSize?: number;
+    skipMergeCommits?: boolean;
+    excludePatterns?: string[];
+    noiseKeywords?: string[];
+  };
   server: {
     transport?: 'stdio' | 'http';
     dashboard?: boolean;
@@ -121,6 +129,14 @@ export function getResolvedConfig(options: ResolvedLaneOptions = {}): ResolvedMe
       apiKey: first(process.env.MEMORIX_EMBEDDING_API_KEY, toml.embedding?.api_key, yaml.embedding?.apiKey, legacy.embeddingApi?.apiKey),
       dimensions: firstNumber(parseNumber(process.env.MEMORIX_EMBEDDING_DIMENSIONS), toml.embedding?.dimensions, yaml.embedding?.dimensions, legacy.embeddingApi?.dimensions),
     },
+    git: {
+      autoHook: firstBool(toml.git?.auto_hook, yaml.git?.autoHook),
+      ingestOnCommit: firstBool(toml.git?.ingest_on_commit, yaml.git?.ingestOnCommit),
+      maxDiffSize: firstNumber(toml.git?.max_diff_size, yaml.git?.maxDiffSize),
+      skipMergeCommits: firstBool(toml.git?.skip_merge_commits, yaml.git?.skipMergeCommits),
+      excludePatterns: firstArray(toml.git?.exclude_patterns, yaml.git?.excludePatterns),
+      noiseKeywords: firstArray(toml.git?.noise_keywords, yaml.git?.noiseKeywords),
+    },
     server: {
       transport: first(toml.server?.transport, yaml.server?.transport),
       dashboard: firstBool(toml.server?.dashboard, yaml.server?.dashboard),
@@ -182,6 +198,10 @@ function firstBool(...values: Array<boolean | undefined>): boolean | undefined {
 
 function firstNumber(...values: Array<number | undefined | null>): number | undefined {
   return values.find((value): value is number => value !== undefined && value !== null && Number.isFinite(value));
+}
+
+function firstArray<T>(...values: Array<T[] | undefined>): T[] | undefined {
+  return values.find((value): value is T[] => Array.isArray(value));
 }
 
 function parseNumber(value: string | undefined): number | undefined {

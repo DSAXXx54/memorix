@@ -11,7 +11,7 @@ import {
 } from '../../src/config/resolved-config.js';
 import { resetTomlConfigCache } from '../../src/config/toml-loader.js';
 import { resetYamlConfigCache } from '../../src/config/yaml-loader.js';
-import { resetConfigCache } from '../../src/config.js';
+import { getGitConfig, resetConfigCache } from '../../src/config.js';
 
 const TMP = join(process.cwd(), '.tmp-resolved-config-test');
 const HOME = join(TMP, 'home');
@@ -128,5 +128,44 @@ describe('resolved config', () => {
 
     expect(cfg.agent.model).toBe('git-root-model');
     expect(cfg.sources.toml).toContain(join(PROJECT, 'memorix.toml'));
+  });
+
+  it('resolves git settings from TOML above legacy YAML', () => {
+    writeFileSync(join(HOME, '.memorix', 'config.toml'), [
+      '[git]',
+      'auto_hook = true',
+      'ingest_on_commit = false',
+      'max_diff_size = 2048',
+      'skip_merge_commits = false',
+      'exclude_patterns = ["dist/**", "*.lock"]',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(HOME, '.memorix', 'memorix.yml'), [
+      'git:',
+      '  autoHook: false',
+      '  maxDiffSize: 999',
+    ].join('\n'), 'utf8');
+
+    const cfg = getResolvedConfig({ projectRoot: null, homeDir: HOME });
+
+    expect(cfg.git.autoHook).toBe(true);
+    expect(cfg.git.ingestOnCommit).toBe(false);
+    expect(cfg.git.maxDiffSize).toBe(2048);
+    expect(cfg.git.skipMergeCommits).toBe(false);
+    expect(cfg.git.excludePatterns).toEqual(['dist/**', '*.lock']);
+  });
+
+  it('uses git TOML settings in runtime getGitConfig after project root detection', () => {
+    writeFileSync(join(PROJECT, 'memorix.toml'), [
+      '[git]',
+      'auto_hook = true',
+      'max_diff_size = 4096',
+      'skip_merge_commits = false',
+    ].join('\n'), 'utf8');
+
+    const cfg = getGitConfig({ projectRoot: PROJECT, homeDir: HOME });
+
+    expect(cfg.autoHook).toBe(true);
+    expect(cfg.maxDiffSize).toBe(4096);
+    expect(cfg.skipMergeCommits).toBe(false);
   });
 });

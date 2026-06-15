@@ -15,6 +15,7 @@ import {
   getResolvedConfig,
   getResolvedEmbeddingLane,
   getResolvedMemoryLane,
+  type ResolvedLaneOptions,
 } from './config/resolved-config.js';
 export { loadDotenv, resetDotenv, getLoadedEnvFiles } from './config/dotenv-loader.js';
 export { loadFileConfig, resetConfigCache, type MemorixConfig } from './config/legacy-loader.js';
@@ -96,8 +97,16 @@ export function getEmbeddingDimensions(): number | null {
 // ─── YAML-specific getters (new config sections) ────────────────────
 
 /** Git-Memory pipeline config */
-export function getGitConfig(): NonNullable<MemorixYamlConfig['git']> {
-  return loadYamlConfig().git ?? {};
+export function getGitConfig(options: ResolvedLaneOptions = {}): NonNullable<MemorixYamlConfig['git']> {
+  const git = getResolvedConfig(options).git;
+  return {
+    autoHook: git.autoHook,
+    ingestOnCommit: git.ingestOnCommit,
+    maxDiffSize: git.maxDiffSize,
+    skipMergeCommits: git.skipMergeCommits,
+    excludePatterns: git.excludePatterns,
+    noiseKeywords: git.noiseKeywords,
+  };
 }
 
 /** Server config */

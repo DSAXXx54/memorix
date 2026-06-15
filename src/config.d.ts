@@ -11,6 +11,7 @@
  * while env vars can still override for advanced users.
  */
 import { type MemorixYamlConfig } from './config/yaml-loader.js';
+import { type ResolvedLaneOptions } from './config/resolved-config.js';
 export { loadDotenv, resetDotenv, getLoadedEnvFiles } from './config/dotenv-loader.js';
 export interface MemorixConfig {
     llm?: {
@@ -69,7 +70,7 @@ export declare function getEmbeddingModel(): string;
 /** Embedding dimensions override: env > memorix.yml > config.json > null (auto-detect) */
 export declare function getEmbeddingDimensions(): number | null;
 /** Git-Memory pipeline config */
-export declare function getGitConfig(): NonNullable<MemorixYamlConfig['git']>;
+export declare function getGitConfig(options?: ResolvedLaneOptions): NonNullable<MemorixYamlConfig['git']>;
 /** Server config */
 export declare function getServerConfig(): NonNullable<MemorixYamlConfig['server']>;
 /** Team config */

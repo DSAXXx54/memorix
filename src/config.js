@@ -8,8 +8,8 @@
  *   4. ~/.memorix/config.json legacy file
  *   5. Hardcoded defaults
  */
-import { loadYamlConfig } from './config/yaml-loader.js';
 import { getResolvedAgentLane, getResolvedConfig, getResolvedEmbeddingLane, getResolvedMemoryLane, } from './config/resolved-config.js';
+import { loadYamlConfig } from './config/yaml-loader.js';
 export { loadDotenv, resetDotenv, getLoadedEnvFiles } from './config/dotenv-loader.js';
 export { loadFileConfig, resetConfigCache } from './config/legacy-loader.js';
 // ─── Resolved Getters ────────────────────────────────────────────────
@@ -78,8 +78,16 @@ export function getEmbeddingDimensions() {
 }
 // ─── YAML-specific getters (new config sections) ────────────────────
 /** Git-Memory pipeline config */
-export function getGitConfig() {
-    return loadYamlConfig().git ?? {};
+export function getGitConfig(options = {}) {
+    const git = getResolvedConfig(options).git;
+    return {
+        autoHook: git.autoHook,
+        ingestOnCommit: git.ingestOnCommit,
+        maxDiffSize: git.maxDiffSize,
+        skipMergeCommits: git.skipMergeCommits,
+        excludePatterns: git.excludePatterns,
+        noiseKeywords: git.noiseKeywords,
+    };
 }
 /** Server config */
 export function getServerConfig() {
