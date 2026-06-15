@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const detectProjectMock = vi.fn();
 const homedirMock = vi.fn(() => 'C:\\Users\\Tester');
@@ -7,6 +9,7 @@ const warnMock = vi.fn();
 const noteMock = vi.fn();
 const introMock = vi.fn();
 const outroMock = vi.fn();
+let tempDir: string | undefined;
 
 vi.mock('node:os', async () => {
   const actual = await vi.importActual<typeof import('node:os')>('node:os');
@@ -62,6 +65,12 @@ describe('memorix config commands', () => {
   afterEach(() => {
     delete process.env.MEMORIX_AGENT_MODEL;
     delete process.env.MEMORIX_AGENT_API_KEY;
+    delete process.env.MEMORIX_LLM_API_KEY;
+    if (tempDir) {
+      rmSync(tempDir, { recursive: true, force: true });
+      tempDir = undefined;
+    }
+    homedirMock.mockReturnValue('C:\\Users\\Tester');
     vi.clearAllMocks();
   });
 
@@ -109,5 +118,39 @@ describe('memorix config commands', () => {
     expect(notes).toContain('Embedding lane');
     expect(notes).toContain('<redacted>');
     expect(notes).not.toContain('status-secret-key');
+  });
+
+  it('migrates legacy YAML into project memorix.toml without deleting legacy files or env secrets', async () => {
+    tempDir = mkdtempSync(join(process.env.TEMP ?? process.cwd(), 'memorix-config-migrate-'));
+    const homeDir = join(tempDir, 'home');
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(join(homeDir, '.memorix'), { recursive: true });
+    mkdirSync(projectDir, { recursive: true });
+    homedirMock.mockReturnValue(homeDir);
+    detectProjectMock.mockReturnValue({
+      id: 'local/project',
+      name: 'project',
+      rootPath: projectDir,
+      gitRemote: null,
+    });
+    writeFileSync(join(projectDir, 'memorix.yml'), [
+      'llm:',
+      '  provider: deepseek',
+      '  model: deepseek-chat',
+      'behavior:',
+      '  sessionInject: minimal',
+    ].join('\n'), 'utf8');
+    process.env.MEMORIX_LLM_API_KEY = 'env-secret-key-that-must-not-be-written';
+    const command = (await import('../../src/cli/commands/config-migrate.js')).default;
+
+    await command.run?.({ args: {}, rawArgs: [], cmd: command } as any);
+
+    const target = join(projectDir, 'memorix.toml');
+    expect(existsSync(target)).toBe(true);
+    expect(existsSync(join(projectDir, 'memorix.yml'))).toBe(true);
+    const content = readFileSync(target, 'utf8');
+    expect(content).toContain('[memory.llm]');
+    expect(content).toContain('provider = "deepseek"');
+    expect(content).not.toContain('env-secret-key-that-must-not-be-written');
   });
 });

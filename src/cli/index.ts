@@ -976,6 +976,7 @@ const main = defineCommand({
       subCommands: {
         path: () => import('./commands/config-path.js').then(m => m.default),
         get: () => import('./commands/config-get.js').then(m => m.default),
+        migrate: () => import('./commands/config-migrate.js').then(m => m.default),
       },
     })),
     integrate: () => import('./commands/integrate.js').then(m => m.default),

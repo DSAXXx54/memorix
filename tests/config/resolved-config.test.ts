@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import {
   getResolvedAgentLane,
   getResolvedConfig,
+  getResolvedConfigForCwd,
   getResolvedEmbeddingLane,
   getResolvedMemoryLane,
   resetResolvedConfigCache,
@@ -111,5 +112,21 @@ describe('resolved config', () => {
     ]);
     expect(cfg.sources.legacy).toContain(join(HOME, '.memorix', 'memorix.yml'));
     expect(cfg.sources.env).toContain('MEMORIX_AGENT_MODEL');
+  });
+
+  it('resolves project override from detected git root, not arbitrary nested cwd', () => {
+    const nested = join(PROJECT, 'packages', 'app');
+    mkdirSync(join(PROJECT, '.git'), { recursive: true });
+    mkdirSync(nested, { recursive: true });
+    writeFileSync(join(PROJECT, 'memorix.toml'), '[agent]\nmodel = "git-root-model"\n', 'utf8');
+
+    const previousHome = process.env.USERPROFILE;
+    process.env.USERPROFILE = HOME;
+    const cfg = getResolvedConfigForCwd(nested);
+    if (previousHome === undefined) delete process.env.USERPROFILE;
+    else process.env.USERPROFILE = previousHome;
+
+    expect(cfg.agent.model).toBe('git-root-model');
+    expect(cfg.sources.toml).toContain(join(PROJECT, 'memorix.toml'));
   });
 });
