@@ -1,4 +1,14 @@
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const homedirMock = vi.hoisted(() => vi.fn(() => ''));
+
+vi.mock('node:os', async () => {
+  const actual = await vi.importActual<typeof import('node:os')>('node:os');
+  return { ...actual, homedir: homedirMock };
+});
 
 const EMBEDDING_ENV_KEYS = [
   'MEMORIX_EMBEDDING_API_KEY',
@@ -11,14 +21,23 @@ const EMBEDDING_ENV_KEYS = [
   'OPENAI_API_KEY',
 ];
 
+let tempHome: string | undefined;
+
 beforeEach(() => {
   vi.resetModules();
+  tempHome = mkdtempSync(join(tmpdir(), 'memorix-empty-home-'));
+  homedirMock.mockReturnValue(tempHome);
   for (const key of EMBEDDING_ENV_KEYS) delete process.env[key];
 });
 
 afterEach(() => {
   vi.resetModules();
   for (const key of EMBEDDING_ENV_KEYS) delete process.env[key];
+  if (tempHome) {
+    rmSync(tempHome, { recursive: true, force: true });
+    tempHome = undefined;
+  }
+  homedirMock.mockReset();
 });
 
 describe('embedding API key lane isolation', () => {

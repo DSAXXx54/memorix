@@ -1,8 +1,9 @@
 /**
  * Memorix module resolver
  *
- * Prefer repo TypeScript sources in a source checkout, but fall back to the
- * installed memorix package's dist/ tree when memcode is running from npm.
+ * Prefer repo TypeScript sources in a source checkout. For npm-installed root
+ * CLI launches, the root memorix package passes MEMORIX_PACKAGE_ROOT so memcode
+ * can load the same source modules from the published package.
  */
 
 import { existsSync } from "node:fs";
@@ -35,6 +36,23 @@ function findWorkspaceSourceRoot(): string | null {
 	return null;
 }
 
+function findConfiguredPackageRoot(): MemorixModuleRoot | null {
+	const packageRoot = process.env.MEMORIX_PACKAGE_ROOT;
+	if (!packageRoot) return null;
+
+	const srcRoot = join(packageRoot, "src");
+	if (existsSync(join(srcRoot, "memory", "observations.ts"))) {
+		return { kind: "src", root: srcRoot };
+	}
+
+	const distRoot = join(packageRoot, "dist");
+	if (existsSync(join(distRoot, "memory", "observations.js"))) {
+		return { kind: "dist", root: distRoot };
+	}
+
+	return null;
+}
+
 function findInstalledDistRoot(): string | null {
 	const require = createRequire(import.meta.url);
 
@@ -52,8 +70,18 @@ function findInstalledDistRoot(): string | null {
 	return null;
 }
 
-function getMemorixModuleRoot(): MemorixModuleRoot {
+export function resetMemorixModuleRootForTests(): void {
+	_memorixModuleRoot = null;
+}
+
+export function resolveMemorixModuleRoot(): MemorixModuleRoot {
 	if (_memorixModuleRoot) return _memorixModuleRoot;
+
+	const configuredPackageRoot = findConfiguredPackageRoot();
+	if (configuredPackageRoot) {
+		_memorixModuleRoot = configuredPackageRoot;
+		return _memorixModuleRoot;
+	}
 
 	const workspaceSrcRoot = findWorkspaceSourceRoot();
 	if (workspaceSrcRoot) {
@@ -87,7 +115,7 @@ function resolveMemorixModulePath(moduleRoot: MemorixModuleRoot, subpath: string
  * Converts Windows paths to file:// URLs for ESM compatibility.
  */
 export async function importFromMemorix(subpath: string): Promise<any> {
-	const moduleRoot = getMemorixModuleRoot();
+	const moduleRoot = resolveMemorixModuleRoot();
 	const fullPath = resolveMemorixModulePath(moduleRoot, subpath);
 	if (fullPath.endsWith(".ts")) {
 		if (!_jiti) {

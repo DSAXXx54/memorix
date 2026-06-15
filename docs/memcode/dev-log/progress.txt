@@ -11,7 +11,7 @@
 ## How to Run
 ```powershell
 cd E:\my_idea_cc\my_copilot\memorix
-$env:DEEPSEEK_API_KEY="sk-REDACTED"
+$env:DEEPSEEK_API_KEY=<set locally; never commit real keys>
 bun dist/cli/index.js
 ```
 

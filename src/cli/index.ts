@@ -17,6 +17,7 @@ import { defineCommand, runMain } from 'citty';
 import * as p from '@clack/prompts';
 import { execSync, spawn } from 'node:child_process';
 import { getCliVersion } from './version.js';
+import { ensureMemorixPackageRoot } from './memcode-bootstrap.js';
 
 const NO_GIT_MSG = 'Memorix requires a git repo to establish project identity. Run `git init` in this workspace first.';
 
@@ -1025,6 +1026,7 @@ const main = defineCommand({
       meta: { name: 'memcode', description: 'Enter memcode TUI — native coding agent with memory' },
       async run() {
         try {
+          ensureMemorixPackageRoot();
           const { runCli } = await import('@memorix/memcode');
           await runCli(process.argv.slice(3));
         } catch (err) {
@@ -1050,6 +1052,7 @@ const main = defineCommand({
     // No subcommand provided — enter memcode TUI (native coding agent)
     if (!firstArg) {
       try {
+        ensureMemorixPackageRoot();
         const { runCli } = await import('@memorix/memcode');
         await runCli(process.argv.slice(2));
         return;
