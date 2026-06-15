@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import {
   getInitScopeDescription,
   getInitTargetDir,
+  getInitConfigFilename,
+  getInitProjectConfigFilename,
   resolveInitScope,
   shouldOfferDotenv,
 } from '../../src/cli/commands/init-shared.js';
@@ -52,5 +54,10 @@ describe('init-shared', () => {
   it('offers dotenv files in both supported scopes', () => {
     expect(shouldOfferDotenv('global')).toBe(true);
     expect(shouldOfferDotenv('project')).toBe(true);
+  });
+
+  it('uses TOML config filenames for new init flows', () => {
+    expect(getInitConfigFilename()).toBe('config.toml');
+    expect(getInitProjectConfigFilename()).toBe('memorix.toml');
   });
 });

@@ -90,10 +90,12 @@ memorix init
 
 `memorix init` 会让你在 `Global defaults` 和 `Project config` 之间选择作用域。
 
-Memorix 使用两类文件：
+Memorix 使用一个主要产品配置文件：
 
-- `memorix.yml`：行为配置和项目设置
-- `.env`：API key 等 secrets
+- `~/.memorix/config.toml`：全局默认配置
+- `<git-root>/memorix.toml`：可选项目覆盖配置
+
+旧的 `memorix.yml`、`.env` 和 `config.json` 仍然兼容读取，但新的初始化和文档入口统一使用 TOML。
 
 然后按你的目标选择一条最顺手的路径：
 
@@ -412,7 +414,7 @@ Memorix 不是一条单线流水线。它从多个入口接收记忆，把内容
 | [安装与接入](docs/SETUP.md) | 安装、stdio vs HTTP control plane、各客户端配置 |
 | [Docker 部署](docs/DOCKER.md) | 官方容器路径、compose、healthcheck 和路径注意事项 |
 | [性能与资源](docs/PERFORMANCE.md) | 资源画像、空闲/运行时成本、优化旋钮 |
-| [配置指南](docs/CONFIGURATION.md) | `memorix.yml`、`.env`、项目覆盖 |
+| [配置指南](docs/CONFIGURATION.md) | `config.toml`、`memorix.toml`、兼容配置 |
 | [Agent Operator Playbook](docs/AGENT_OPERATOR_PLAYBOOK.md) | AI 面向的正式操作手册：安装、绑定、hooks、排障 |
 | [架构](docs/ARCHITECTURE.md) | 系统形态、记忆层、数据流、模块图 |
 | [API 参考](docs/API_REFERENCE.md) | MCP / HTTP / CLI 命令面 |
@@ -440,7 +442,7 @@ Memorix 不是一条单线流水线。它从多个入口接收记忆，把内容
 - **独立的 TUI Agent LLM 配置**：新增 `agent` / `MEMORIX_AGENT_LLM_*` 配置路径，允许 TUI chat 使用与 memory formation、rerank、embedding 不同的 provider/model；未配置时仍回退到 `llm`。
 - **Fresh Project 体验修复**：空项目搜索现在会明确说明「工具调用成功，但当前 Git 项目还没有 Memorix memories」，而不是表现得像一个泛化检索失败。
 - **更安全的更新检查**：自动更新默认切回 notify-only；后台静默安装需要显式设置 `MEMORIX_AUTO_UPDATE=install`。
-- **Dashboard 配置一致性**：独立 `memorix dashboard` 现在会在状态路由初始化 embedding/LLM 前先加载项目 `.env` 和 YAML，和 CLI、TUI、doctor/status 保持一致。
+- **Dashboard 配置一致性**：独立 `memorix dashboard` 现在会在状态路由初始化 embedding/LLM 前先加载项目和全局配置，和 CLI、TUI、doctor/status 保持一致。
 
 ---
 

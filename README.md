@@ -90,10 +90,12 @@ memorix init
 
 `memorix init` lets you choose between `Global defaults` and `Project config`.
 
-Memorix uses two files with two roles:
+Memorix uses one primary product config file:
 
-- `memorix.yml` for behavior and project settings
-- `.env` for secrets such as API keys
+- `~/.memorix/config.toml` for global defaults
+- `<git-root>/memorix.toml` for optional project overrides
+
+Legacy `memorix.yml`, `.env`, and `config.json` files are still read for compatibility, but new setup flows use TOML.
 
 Then pick the path that matches what you want to do:
 
@@ -415,7 +417,7 @@ Memorix is not a single linear pipeline. It accepts memory from multiple ingress
 | [Setup Guide](docs/SETUP.md) | Install, stdio vs HTTP control plane, per-client config |
 | [Docker Deployment](docs/DOCKER.md) | Official container image path, compose, healthcheck, and path caveats |
 | [Performance](docs/PERFORMANCE.md) | Resource profile, idle/runtime costs, optimization knobs |
-| [Configuration](docs/CONFIGURATION.md) | `memorix.yml`, `.env`, project overrides |
+| [Configuration](docs/CONFIGURATION.md) | `config.toml`, `memorix.toml`, compatibility overrides |
 | [Agent Operator Playbook](docs/AGENT_OPERATOR_PLAYBOOK.md) | Canonical AI-facing guide for installation, binding, hooks, troubleshooting |
 | [Architecture](docs/ARCHITECTURE.md) | System shape, memory layers, data flows, module map |
 | [API Reference](docs/API_REFERENCE.md) | MCP / HTTP / CLI command surface |
@@ -443,7 +445,7 @@ Version `1.0.10` tightens Memorix's low-intrusion operator story: privacy-safe h
 - **Separate TUI Agent LLM Config**: `agent` / `MEMORIX_AGENT_LLM_*` lets TUI chat use a different provider/model from memory formation and rerank, while preserving fallback to `llm`.
 - **Fresh-Project UX Fix**: Empty project searches now explicitly say the tool call worked but the project has no stored Memorix memories yet, instead of looking like a generic retrieval failure.
 - **Safer Update Checks**: Auto-update now defaults to notify-only; background install is explicit opt-in via `MEMORIX_AUTO_UPDATE=install`.
-- **Dashboard Config Consistency**: Standalone dashboard status now loads project `.env` and project YAML before embedding/LLM status routes initialize, matching CLI and TUI behavior.
+- **Dashboard Config Consistency**: Standalone dashboard status loads project and global configuration before embedding/LLM status routes initialize, matching CLI and TUI behavior.
 
 ---
 

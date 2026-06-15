@@ -971,6 +971,13 @@ const main = defineCommand({
     })),
     // Infrastructure commands
     init: () => import('./commands/init.js').then(m => m.default),
+    config: () => Promise.resolve(defineCommand({
+      meta: { name: 'config', description: 'Inspect Memorix TOML configuration' },
+      subCommands: {
+        path: () => import('./commands/config-path.js').then(m => m.default),
+        get: () => import('./commands/config-get.js').then(m => m.default),
+      },
+    })),
     integrate: () => import('./commands/integrate.js').then(m => m.default),
     memory: () => import('./commands/memory.js').then(m => m.default),
     reasoning: () => import('./commands/reasoning.js').then(m => m.default),
@@ -1030,7 +1037,7 @@ const main = defineCommand({
     // Guard: if citty already resolved a subcommand, its run() was called before this.
     // Detect by checking if the first CLI arg matches a registered subcommand name.
     const firstArg = process.argv[2];
-    const knownSubs = ['ask', 'search', 'remember', 'recent', 'memcode',
+    const knownSubs = ['ask', 'search', 'remember', 'recent', 'memcode', 'config',
       'init', 'integrate', 'memory', 'reasoning', 'retention', 'formation', 'audit', 'transfer', 'skills',
       'session', 'team', 'task', 'message', 'lock', 'handoff', 'poll',
       'receipt',
@@ -1084,6 +1091,7 @@ const main = defineCommand({
       console.error('  serve-http Start HTTP MCP + dashboard control plane');
       console.error('  serve      Start MCP server on stdio');
       console.error('  init       Create global defaults or project config');
+      console.error('  config     Show TOML config paths and resolved values');
       console.error('  integrate  Install one IDE integration into the current repo');
       console.error('  status     Show project info + stats');
       console.error('  dashboard  Open standalone dashboard (read-mostly)');
