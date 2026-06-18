@@ -3,6 +3,18 @@ node_modules/
 dist/
 *.tgz
 
+# TypeScript build sidecars must never live next to source files.
+# They shadow .ts modules when code imports ESM-style "./foo.js".
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+src/**/*.d.ts.map
+!src/dashboard/static/**/*.js
+!src/embedding/fastembed.d.ts
+!src/embedding/transformers.d.ts
+!src/globals.d.ts
+!src/types/memcode.d.ts
+
 # Memorix data
 .memorix-data/
 *.backup-*
