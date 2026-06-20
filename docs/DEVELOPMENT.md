@@ -15,7 +15,7 @@ Memorix is a TypeScript project built around:
 
 The current release work targets the **1.1 line** while package metadata may still show the last published patch version until the release commit is cut.
 
-Contributors should assume the following are already part of the supported product surface:
+Contributors should assume the following areas are part of the 1.1 release line:
 
 - shared memory across MCP clients, CLI, SDK, dashboard, hooks, and memcode
 - memcode uses Memorix project memory, hooks, `/memory` commands, resumable sessions, and model switching as a first-party memagent
@@ -222,7 +222,7 @@ over only unit tests.
 
 ## 7. Git Memory Development Notes
 
-Git Memory is one of Memorix's most important product differentiators.
+Git Memory turns commit history into searchable engineering memory, so changes here directly affect how well agents can recall what changed in a codebase.
 
 When working in this area, validate:
 

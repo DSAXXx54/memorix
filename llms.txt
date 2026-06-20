@@ -4,7 +4,7 @@
 
 Memorix gives coding agents persistent, project-aware memory across sessions, IDEs, terminals, and MCP clients. It stores project knowledge once so multiple agents can retrieve it through MCP, CLI, SDK, hooks, or memcode. It works with Claude Code, Codex, Cursor, Windsurf, GitHub Copilot / VS Code MCP, Gemini CLI, OpenCode, Kiro, Antigravity, Trae, memcode, and other MCP-capable agents.
 
-## Public Surfaces
+## Entry Points
 
 - `memorix serve` starts the stdio MCP server for IDEs and agents.
 - `memorix background start` starts the HTTP MCP control plane and dashboard.

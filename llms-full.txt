@@ -6,7 +6,7 @@ Memorix is a TypeScript/Node.js project that gives AI coding agents persistent, 
 
 If you are an AI coding agent helping a user install, operate, or troubleshoot Memorix, read `docs/AGENT_OPERATOR_PLAYBOOK.md` before taking action. It is the canonical execution guide for install, runtime selection, Git/project binding, MCP integration, hooks, and troubleshooting.
 
-## Product Surfaces
+## Entry Points
 
 ### MCP server
 

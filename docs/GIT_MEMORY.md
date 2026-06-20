@@ -1,8 +1,8 @@
 # Git Memory Guide
 
-Git Memory is one of Memorix's core differentiators.
+Git Memory turns your Git history into searchable engineering memory, so an agent can recall what actually changed in the codebase — not just what someone wrote down in a note.
 
-Instead of relying only on agent-written notes, Memorix can turn Git history into searchable engineering memory with source provenance.
+Instead of relying only on agent-written notes, Memorix reads commit metadata and stores each commit as a memory with source provenance (the commit hash it came from).
 
 ---
 

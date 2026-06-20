@@ -34,9 +34,11 @@
 
 ## What Memorix Is
 
-Memorix is a memory layer for AI software work. It is not another agent you have to switch to. It gives the agents you already use a shared, searchable project memory that survives new chats, IDE switches, terminal sessions, and handoffs.
+Memorix gives the AI coding agents you already use a shared, searchable project memory that survives new chats, IDE switches, terminal sessions, and handoffs. The memory lives under the Git project, not inside one chat window or one tool.
 
-Use Claude Code today, Codex tomorrow, Cursor in the afternoon, and memcode when you want a native terminal agent. Memorix keeps the project memory under the Git project instead of trapping it inside one chat window or one tool.
+Use Claude Code today, Codex tomorrow, Cursor in the afternoon, and memcode when you want a native terminal agent — they all read and write the same project memory.
+
+**Reach for Memorix when** you keep re-explaining the same project to a fresh agent: a new session lost what the last one figured out, a teammate's IDE can't see what yours learned, or a design decision is buried in a chat you can't find anymore.
 
 | Problem | What Memorix adds |
 | --- | --- |
@@ -127,7 +129,7 @@ Support tiers:
 | Core | Tested MCP path plus first-class rules or hooks |
 | Extended | Supported path with platform-specific caveats |
 | Community | Best-effort compatibility through MCP or hook adapters |
-| First-party | Built by this repo to prove and use Memorix memory natively |
+| First-party | Bundled in this repo and uses Memorix memory natively |
 
 ## Install
 
@@ -225,9 +227,9 @@ Search is project-scoped by default. `scope="global"` searches across projects. 
 
 ## memcode: First-Party Memagent
 
-memcode is the bundled terminal memagent for Memorix. It reads from and writes to the same project memory pool used by your MCP-connected coding agents.
+memcode is the bundled terminal memagent for Memorix. It can read, edit, run commands, resume sessions, switch models, and expose `/memory` commands — reading and writing the same project memory pool used by Claude Code, Codex, Cursor, Windsurf, and other agents connected through Memorix MCP.
 
-memcode can read, edit, run commands, resume sessions, switch models, and expose `/memory` commands. It writes into the same project memory pool used by Claude Code, Codex, Cursor, Windsurf, and other agents connected through Memorix MCP.
+Use it when you want a terminal agent that has memory out of the box, or when you'd rather not wire an extra MCP server into your existing IDE.
 
 ```text
 one Git project -> one shared Memorix memory pool
@@ -240,6 +242,11 @@ See [docs/MEMCODE.md](docs/MEMCODE.md) for the memcode-specific guide.
 Minimal `~/.memorix/config.toml`:
 
 ```toml
+[agent]
+provider = "openai"
+model = "gpt-4o"
+api_key = "..."
+
 [memory.llm]
 provider = "openai"
 model = "gpt-4o-mini"
@@ -251,11 +258,6 @@ provider = "auto"
 [memory]
 inject = "minimal"
 formation = "active"
-
-[agent]
-provider = "openai"
-model = "gpt-4o"
-api_key = "..."
 ```
 
 Use `[memory.llm]` and `[embedding]` for Memorix memory quality and retrieval. Use `[agent]` only for memcode or other first-party agent flows. Keep credentials in global config or environment variables, and do not commit secrets.
@@ -296,13 +298,6 @@ const results = await client.search({ query: 'auth decision' });
 await client.close();
 ```
 
-## What's New In The 1.1 Line
-
-- **TOML-first configuration**: `~/.memorix/config.toml` and project `memorix.toml` are the user-facing config model.
-- **Separate model lanes**: memory formation, embeddings, and first-party agent flows can use different providers.
-- **memcode as a first-party memagent**: a bundled terminal agent that can directly use and contribute to Memorix project memory.
-- **Release hardening**: packaged memcode resolution, SQLite ESM loading, resume/session UI, CLI test isolation, and CI checks were tightened for the release path.
-
 ## Docs
 
 | Start here | Use when |
@@ -316,6 +311,7 @@ await client.close();
 | [memcode](docs/MEMCODE.md) | Using the bundled first-party memagent |
 | [Agent Operator Playbook](docs/AGENT_OPERATOR_PLAYBOOK.md) | AI-facing execution guide for install, binding, hooks, and troubleshooting |
 | [Development](docs/DEVELOPMENT.md) | Contributing, testing, release checks |
+| [Changelog](CHANGELOG.md) | What changed in each release |
 
 LLM-friendly summaries: [llms.txt](llms.txt) and [llms-full.txt](llms-full.txt).
 

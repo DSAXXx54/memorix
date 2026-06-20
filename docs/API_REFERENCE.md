@@ -12,7 +12,7 @@ Memorix exposes:
 - privacy-safe handoff diagnostics
 - dashboard and optional graph compatibility tools
 
-It also exposes a **human/operator CLI surface** for terminal workflows. The CLI is not a raw mirror of MCP tool names; it is the primary product surface for human operators, while MCP remains the integration protocol for IDEs and agents.
+It also exposes a **human/operator CLI** for terminal workflows. The CLI is not a raw mirror of MCP tool names: the CLI is what you run by hand to inspect and manage memory, while MCP is how IDEs and agents integrate.
 
 ---
 
