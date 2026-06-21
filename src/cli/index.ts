@@ -17,7 +17,7 @@ import { defineCommand, runMain } from 'citty';
 import * as p from '@clack/prompts';
 import { execSync, spawn } from 'node:child_process';
 import { getCliVersion } from './version.js';
-import { ensureMemorixPackageRoot } from './memcode-bootstrap.js';
+import { importBundledMemcode } from './memcode-bootstrap.js';
 import { installCliPipeErrorGuard } from './pipe-errors.js';
 
 installCliPipeErrorGuard();
@@ -1030,8 +1030,7 @@ const main = defineCommand({
       meta: { name: 'memcode', description: 'Enter memcode TUI — native coding agent with memory' },
       async run() {
         try {
-          ensureMemorixPackageRoot();
-          const { runCli } = await import('@memorix/memcode');
+          const { runCli } = await importBundledMemcode();
           await runCli(process.argv.slice(3));
         } catch (err) {
           console.error('Failed to start memcode:', err instanceof Error ? err.message : err);
@@ -1056,8 +1055,7 @@ const main = defineCommand({
     // No subcommand provided — enter memcode TUI (native coding agent)
     if (!firstArg) {
       try {
-        ensureMemorixPackageRoot();
-        const { runCli } = await import('@memorix/memcode');
+        const { runCli } = await importBundledMemcode();
         await runCli(process.argv.slice(2));
         return;
       } catch (err) {

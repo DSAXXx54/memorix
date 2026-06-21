@@ -54,8 +54,8 @@ export default defineConfig([
     esbuildOptions(options) {
       options.jsx = 'automatic';
     },
-    // Copy dashboard static files after CLI build
-    onSuccess: 'node scripts/copy-static.cjs',
+    // Copy dashboard and bundled memcode runtime assets after CLI build.
+    onSuccess: 'node scripts/copy-static.cjs && node scripts/copy-memcode-runtime.cjs',
   },
   {
     entry: ['packages/memcode/src/index.ts'],
@@ -69,6 +69,12 @@ export default defineConfig([
     shims: true,
     define,
     tsconfig: 'packages/memcode/tsconfig.build.json',
+    banner: {
+      js: [
+        'import {createRequire as __memorix_memcode_cjsRequire} from "module";',
+        'const require = __memorix_memcode_cjsRequire(import.meta.url);',
+      ].join('\n'),
+    },
     external: ['fastembed', '@huggingface/transformers', 'better-sqlite3', './tui/*', '../tui/*'],
     esbuildOptions(options) {
       // Don't bundle the TUI directory — it's loaded lazily via dynamic import

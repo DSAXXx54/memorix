@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { fileURLToPath } from 'node:url';
 
 function isMemorixPackageRoot(dir: string): boolean {
@@ -41,4 +42,31 @@ export function ensureMemorixPackageRoot(
   }
 
   return packageRoot;
+}
+
+function ensureBundledMemcodePackageDir(packageRoot: string): void {
+  if (process.env.MEMCODE_PACKAGE_DIR || process.env.PI_PACKAGE_DIR) {
+    return;
+  }
+
+  const bundledRuntimeDir = join(packageRoot, 'dist', 'memcode-runtime');
+  if (existsSync(join(bundledRuntimeDir, 'package.json'))) {
+    process.env.MEMCODE_PACKAGE_DIR = bundledRuntimeDir;
+  }
+}
+
+export async function importBundledMemcode(
+  startDir: string = dirname(fileURLToPath(import.meta.url)),
+): Promise<{ runCli: (args: string[]) => Promise<void> | void }> {
+  const packageRoot = ensureMemorixPackageRoot(startDir);
+  if (packageRoot) {
+    const bundledEntry = join(packageRoot, 'dist', 'memcode', 'index.js');
+    if (existsSync(bundledEntry)) {
+      ensureBundledMemcodePackageDir(packageRoot);
+      return import(pathToFileURL(bundledEntry).href);
+    }
+  }
+
+  // Source-checkout fallback for local development before the root dist exists.
+  return import('@memorix/memcode');
 }
