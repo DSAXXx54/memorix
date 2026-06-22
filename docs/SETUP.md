@@ -6,25 +6,25 @@ In the 1.1 line, the normal path is:
 
 ```bash
 npm install -g memorix
-cd your-git-repo
-memorix init
-memorix setup --agent <agent>
+memorix init --global
+memorix setup --agent <agent> --global
 ```
 
-`memorix setup` installs the recommended Memorix integration for the target agent: plugin packages where supported, MCP config, project guidance, hooks, and skills.
+`memorix setup` installs the recommended Memorix integration for the target agent: plugin packages where supported, MCP config, usage guidance, hooks, and skills.
+With `--global`, it writes the user-level surfaces the host supports. Run the same command inside a repo without `--global` only when you intentionally want repo-local guidance, rules, or hooks for that project.
 
 Common runtime entry points:
 
 | Entry | Use it for |
 | --- | --- |
-| `memorix setup --agent <agent>` | one-command agent integration |
+| `memorix setup --agent <agent> --global` | one-command user-level agent integration |
 | `memorix` CLI commands | direct workflows: setup, search/store, Git Memory, import/export, dashboard, diagnostics, orchestration, and automation |
 | `memorix serve` | stdio MCP server for IDEs and coding agents |
 | `memorix background start` | long-lived HTTP MCP service plus dashboard |
 | `memorix serve-http --port 3211` | foreground HTTP MCP for debugging or supervised launches |
 | `memorix` / `memcode` | bundled terminal agent that uses the same Memorix memory pool |
 
-Most users should start with `memorix setup --agent <agent>`. Use raw `memorix serve` only when you are wiring an MCP client manually. Use HTTP when you intentionally want one shared background process, browser dashboard, Docker deployment, or multiple clients using the same MCP endpoint. Use the CLI for manual operation and automation. Use memcode when you want the bundled terminal agent.
+Most users should start with `memorix setup --agent <agent> --global`. Use raw `memorix serve` only when you are wiring an MCP client manually. Use HTTP when you intentionally want one shared background process, browser dashboard, Docker deployment, or multiple clients using the same MCP endpoint. Use the CLI for manual operation and automation. Use memcode when you want the bundled terminal agent.
 
 For agent-specific plugin, rules, hooks, and skills support, see [INTEGRATIONS.md](INTEGRATIONS.md).
 
@@ -52,22 +52,22 @@ git init
 npm install -g memorix
 ```
 
-Initialize global or project configuration:
+Initialize global defaults (optional):
 
 ```bash
-memorix init
+memorix init --global
 ```
 
 Install an agent integration:
 
 ```bash
-memorix setup --agent claude
-memorix setup --agent codex
-memorix setup --agent copilot
-memorix setup --agent cursor
-memorix setup --agent pi
-memorix setup --agent gemini-cli
-memorix setup --agent opencode
+memorix setup --agent claude --global
+memorix setup --agent codex --global
+memorix setup --agent copilot --global
+memorix setup --agent cursor --global
+memorix setup --agent pi --global
+memorix setup --agent gemini-cli --global
+memorix setup --agent opencode --global
 ```
 
 What this does:
@@ -76,10 +76,12 @@ What this does:
 - Codex: installs a local Personal marketplace plugin, attempts `codex plugin add memorix@personal`, and writes `AGENTS.md` guidance.
 - GitHub Copilot CLI: installs a local plugin package and attempts `copilot plugin install <local-path>`.
 - Cursor: writes Cursor MCP config, rules, skills, and hook guidance.
-- Pi: installs a project Pi package under `.pi/packages/memorix` and attempts `pi install <path> -l --approve`.
+- Pi: installs the user-level Memorix Pi package and attempts `pi install <path> --approve`.
 - Gemini CLI: installs a local extension package under `~/.gemini/extensions/memorix`.
 - OpenCode: installs a local plugin file, OpenCode skill, MCP config, and `AGENTS.md` guidance.
 - Other supported agents: writes their MCP/rules/hooks files according to agent support.
+
+Global setup writes user-level plugin, config, and hook surfaces where the host supports them. Use the same command without `--global` only when you explicitly want repo-local guidance, rules, or hooks for the current project.
 
 Memorix uses TOML as the user-facing configuration model:
 
@@ -104,7 +106,7 @@ memorix config path
 ### Option A: setup for existing agents
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
 Use this for Claude Code, Codex, Cursor, Windsurf, Copilot, Gemini CLI, OpenCode, Pi, Kiro, Antigravity, Trae, or any supported agent. It is the default user-facing install path.
@@ -236,7 +238,7 @@ See [DOCKER.md](DOCKER.md).
 
 ## 4. Manual MCP Client Setup
 
-Use this section when `memorix setup --agent <agent>` is not available for the target agent, or when you intentionally want to manage MCP configuration yourself.
+Use this section when `memorix setup --agent <agent> --global` is not available for the target agent, or when you intentionally want to manage MCP configuration yourself.
 
 ### Claude Code fallback
 
@@ -356,13 +358,13 @@ Project config: `.kiro/settings/mcp.json`
 Pi uses its package system instead of a separate Memorix MCP config lane:
 
 ```bash
-memorix setup --agent pi
+memorix setup --agent pi --global
 ```
 
-This writes `.pi/packages/memorix`, registers it with:
+This writes the user-level Memorix Pi package and registers it with:
 
 ```bash
-pi install .pi/packages/memorix -l --approve
+pi install ~/.pi/agent/packages/memorix --approve
 ```
 
 Check the loaded package resources with:
@@ -371,7 +373,7 @@ Check the loaded package resources with:
 pi config --approve
 ```
 
-You should see the Memorix extension and the official Memorix skills listed under the project package.
+You should see the Memorix extension and the official Memorix skills listed under the Pi package.
 
 ### Gemini CLI, OpenCode, Antigravity, Trae, and other MCP clients
 
@@ -393,10 +395,10 @@ If it supports HTTP MCP, use `http://localhost:3211/mcp`.
 OpenCode can also use a local Memorix plugin generated by setup:
 
 ```bash
-memorix setup --agent opencode
+memorix setup --agent opencode --global
 ```
 
-This writes `.opencode/plugins/memorix.js` for event capture, `.opencode/skills/*/SKILL.md` for OpenCode skill discovery, and pairs both with `AGENTS.md` guidance.
+This writes the OpenCode plugin, skills, MCP config, and `AGENTS.md` guidance in the selected scope.
 
 ---
 

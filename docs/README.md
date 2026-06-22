@@ -101,7 +101,7 @@ Historical/deep-reference documents may describe older designs. If they conflict
 
 These docs target the **1.1 release line**, where:
 
-- `memorix setup --agent <agent>` is the default agent integration command
+- `memorix setup --agent <agent> --global` is the default agent integration command
 - `memorix serve` remains the manual stdio MCP server for external agents
 - `memorix background start` runs the shared HTTP MCP service and dashboard
 - `memorix integrate --agent <agent>` and `memorix hooks install --agent <agent>` remain manual/fallback generation commands

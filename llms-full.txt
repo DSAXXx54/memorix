@@ -2,7 +2,7 @@
 
 > Local-first shared memory layer for AI coding agents.
 
-Memorix is a TypeScript/Node.js project that gives AI coding agents persistent, project-aware memory. It is designed for software development workflows, not generic chat memory. It works across Claude Code, Codex, Cursor, Windsurf, GitHub Copilot CLI, Gemini CLI, OpenCode, Pi, Kiro, Antigravity, Trae, and any agent that can speak MCP over stdio or HTTP. Integrations start with `memorix setup --agent <agent>`, which installs the recommended package or config for that agent: plugin packages where supported, package or extension entries, MCP config, generated project guidance, hooks, skills, or the bundled terminal agent.
+Memorix is a TypeScript/Node.js project that gives AI coding agents persistent, project-aware memory. It is designed for software development workflows, not generic chat memory. It works across Claude Code, Codex, Cursor, Windsurf, GitHub Copilot CLI, Gemini CLI, OpenCode, Pi, Kiro, Antigravity, Trae, and any agent that can speak MCP over stdio or HTTP. Integrations usually start with `memorix setup --agent <agent> --global`, which installs the recommended user-level package or config for that agent: plugin packages where supported, package or extension entries, MCP config, generated guidance, hooks, skills, or the bundled terminal agent.
 
 If you are an AI coding agent helping a user install, operate, or troubleshoot Memorix, read `docs/AGENT_OPERATOR_PLAYBOOK.md` before taking action. It is the canonical execution guide for install, runtime selection, Git/project binding, MCP integration, hooks, and troubleshooting.
 
@@ -10,7 +10,7 @@ If you are an AI coding agent helping a user install, operate, or troubleshoot M
 
 ### Setup package
 
-`memorix setup --agent <agent>` is the default agent integration command.
+`memorix setup --agent <agent> --global` is the default agent integration command.
 
 It installs the recommended Memorix integration for the target agent:
 
@@ -18,7 +18,7 @@ It installs the recommended Memorix integration for the target agent:
 - Codex: local Personal marketplace plugin, plugin-bundled MCP, hooks, skills, plus `AGENTS.md` guidance. Setup also attempts `codex plugin add memorix@personal`.
 - GitHub Copilot CLI: local Copilot CLI plugin package with MCP, hooks, and a Memorix skill. Setup attempts `copilot plugin install <local-path>`.
 - Cursor: Cursor MCP config, `.cursor/rules/memorix.mdc`, skills, and hook guidance through Cursor's project config surfaces.
-- Pi: project Pi package with a Memorix extension and skill. Setup also attempts `pi install <path> -l --approve`.
+- Pi: user Pi package with a Memorix extension and skill. Setup also attempts `pi install <path> --approve`; project-local setup uses `-l`.
 - Gemini CLI: local Gemini extension package with MCP and `GEMINI.md` context.
 - OpenCode: local plugin file, `opencode.json` MCP config, OpenCode skill, and `AGENTS.md` guidance.
 - Windsurf, Kiro, Antigravity, Trae: MCP config plus rules/hooks where supported.
@@ -27,17 +27,17 @@ Use:
 
 ```bash
 npm install -g memorix
-memorix init
-memorix setup --agent claude
-memorix setup --agent codex
-memorix setup --agent copilot
-memorix setup --agent cursor
-memorix setup --agent pi
-memorix setup --agent gemini-cli
-memorix setup --agent opencode
+memorix init --global
+memorix setup --agent claude --global
+memorix setup --agent codex --global
+memorix setup --agent copilot --global
+memorix setup --agent cursor --global
+memorix setup --agent pi --global
+memorix setup --agent gemini-cli --global
+memorix setup --agent opencode --global
 ```
 
-Manual `memorix integrate --agent <agent>` and `memorix hooks install --agent <agent>` remain fallback commands for updating one generated surface without running the full setup package.
+Manual `memorix integrate --agent <agent>` and `memorix hooks install --agent <agent>` remain fallback commands for updating one generated surface without running the full setup package. Run setup without `--global` only when repo-local guidance, rules, or hooks are intentionally desired for one project.
 
 ### MCP server
 
@@ -103,7 +103,7 @@ memorix session start --agent codex-main --agentType codex
 memorix receipt --json
 memorix git-hook --force
 memorix ingest log --count 20
-memorix setup --agent cursor
+memorix setup --agent cursor --global
 memorix orchestrate --goal "Add authentication"
 ```
 
@@ -113,7 +113,7 @@ memorix orchestrate --goal "Add authentication"
 
 - plugin packages: Claude Code, Codex, and GitHub Copilot CLI
 - package or extension entries: Pi package and Gemini CLI extension package
-- local project plugins: OpenCode local plugin file and skill
+- local plugins: OpenCode local plugin file and skill
 - project instructions and rules: AGENTS.md, GEMINI.md, Cursor rules, Windsurf rules, Kiro steering, Trae rules
 - hooks: agent event capture routed through `memorix hook`
 - skills: durable project knowledge promoted into reusable task guidance
@@ -311,10 +311,16 @@ Best for users who want a full coding agent in the terminal.
 ### Agent setup package
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
-Best for connecting Memorix to an existing coding agent or IDE.
+Best for connecting Memorix to an existing coding agent or IDE at the user level.
+
+For intentionally repo-local setup only, run it from the target repository without `--global`:
+
+```bash
+memorix setup --agent <agent>
+```
 
 ### Stdio MCP
 
@@ -346,10 +352,10 @@ Memorix supports Claude Code, Codex, Cursor, Windsurf, GitHub Copilot CLI, Gemin
 
 Support depth differs by client:
 
-- `memorix setup --agent <agent>` is the default install path.
+- `memorix setup --agent <agent> --global` is the default install path.
 - MCP is the common integration layer.
 - Claude Code, Codex, and GitHub Copilot CLI receive local plugin packages.
-- Pi receives a project package; Gemini CLI receives a local extension package.
+- Pi receives a user-level package when setup runs with `--global`; Gemini CLI receives a local extension package.
 - Project instructions and rules include AGENTS.md, GEMINI.md, Cursor rules, Windsurf rules, Kiro steering, and Trae rules.
 - Hooks are generated for agents that expose usable hook events.
 - OpenCode receives a local plugin file at `.opencode/plugins/memorix.js`, an OpenCode skill at `.opencode/skills/memorix-memory/SKILL.md`, plus `opencode.json` MCP config.

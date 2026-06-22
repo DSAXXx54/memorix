@@ -540,7 +540,7 @@ export function getProjectConfigPath(agent: AgentName, projectRoot: string): str
       // OpenCode uses plugin files for hooks
       return path.join(projectRoot, '.opencode', 'plugins', 'memorix.js');
     case 'pi':
-      // Pi receives hooks through the project-local Pi package installed by setup.
+      // Pi receives hooks through the Pi package installed by setup.
       return path.join(projectRoot, '.pi', 'packages', 'memorix', 'extensions', 'memorix.js');
     case 'antigravity':
       return path.join(projectRoot, '.gemini', 'settings.json');
@@ -864,14 +864,14 @@ export async function installHooks(
       };
     }
     case 'pi':
-      // Pi uses its official package extension entrypoint. `memorix setup --agent pi`
+      // Pi uses its official package extension entrypoint. `memorix setup --agent pi --global`
       // installs that package and registers it with `pi install`; direct hooks install
       // should not write a fallback config for another host.
       return {
         agent,
         configPath: getProjectConfigPath(agent, projectRoot),
         events: ['session_start', 'user_prompt', 'post_tool', 'post_response', 'pre_compact', 'post_compact', 'session_end'],
-        generated: { note: 'Pi hooks are provided by the Pi package installed with `memorix setup --agent pi`.' },
+        generated: { note: 'Pi hooks are provided by the Pi package installed with `memorix setup --agent pi --global`.' },
       };
     default:
       generated = generateClaudeConfig(); // fallback

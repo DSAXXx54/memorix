@@ -194,6 +194,30 @@ describe('plugin package installer', () => {
     }
   });
 
+  it('can install plugin packages without hook capture files', async () => {
+    const tmpDir = makeTmpDir();
+    try {
+      const result = await installPluginPackage({
+        agent: 'copilot',
+        homeDir: tmpDir,
+        includeHooks: false,
+      });
+
+      const pluginPath = result.pluginPath;
+      const manifest = JSON.parse(await fs.readFile(path.join(pluginPath, 'plugin.json'), 'utf-8'));
+
+      expect(manifest.hooks).toBeUndefined();
+      await expect(fs.access(path.join(pluginPath, 'hooks', 'hooks.json'))).rejects.toThrow();
+      await expectOfficialSkills(path.join(pluginPath, 'skills'));
+      expect(JSON.parse(await fs.readFile(path.join(pluginPath, '.mcp.json'), 'utf-8')).mcpServers.memorix).toMatchObject({
+        command: 'memorix',
+        args: ['serve'],
+      });
+    } finally {
+      await cleanup(tmpDir);
+    }
+  });
+
 });
 
 describe('extension package installer', () => {
@@ -241,6 +265,22 @@ describe('extension package installer', () => {
       expect(await fs.readFile(extension, 'utf-8')).toContain("hook_event_name: 'pi.tool_result'");
       expect(await fs.readFile(skill, 'utf-8')).toContain('name: memorix-memory');
       await expectOfficialSkills(skillsRoot);
+    } finally {
+      await cleanup(tmpDir);
+    }
+  });
+
+  it('uses the Pi user package directory for global setup', async () => {
+    const tmpDir = makeTmpDir();
+    try {
+      const result = await installPiPackage({ homeDir: tmpDir, global: true });
+      const packageDir = path.join(tmpDir, '.pi', 'agent', 'packages', 'memorix');
+
+      expect(result.packagePath).toBe(packageDir);
+      expect(result.installHint).toContain('pi install');
+      expect(result.installHint).not.toContain(' -l ');
+      expect(JSON.parse(await fs.readFile(path.join(packageDir, 'package.json'), 'utf-8')).name).toBe('memorix-pi-package');
+      await expectOfficialSkills(path.join(packageDir, 'skills'));
     } finally {
       await cleanup(tmpDir);
     }

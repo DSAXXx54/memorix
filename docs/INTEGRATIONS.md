@@ -5,7 +5,7 @@ Memorix is a shared project memory layer. Agents connect through the interfaces 
 For most users, start with:
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
 That command installs the recommended Memorix package or config for the target agent. Manual `integrate`, `hooks`, and raw MCP config remain available when you need a fallback setup.
@@ -16,11 +16,11 @@ That command installs the recommended Memorix package or config for the target a
 
 | Surface | User-facing purpose | Typical install path |
 | --- | --- | --- |
-| Plugin package | Bundles Memorix MCP, skills, hooks, and usage guidance where the agent supports plugins | `memorix setup --agent claude`, `codex`, or `copilot` |
-| Package or extension | Bundles Memorix for agents that use package or extension systems | `memorix setup --agent pi` or `gemini-cli` |
-| Project plugin | Installs a plugin file where the agent loads project plugins directly | `memorix setup --agent opencode` |
+| Plugin package | Bundles Memorix MCP, skills, hooks, and usage guidance where the agent supports plugins | `memorix setup --agent claude --global`, `codex --global`, or `copilot --global` |
+| Package or extension | Bundles Memorix for agents that use package or extension systems | `memorix setup --agent pi --global` or `gemini-cli --global` |
+| Local plugin | Installs a local plugin file where the agent loads plugins directly | `memorix setup --agent opencode --global` |
 | MCP server | Gives an agent live tools for search, recall, storage, reasoning, and coordination | bundled by setup or `memorix serve` |
-| Project guidance | Tells the agent when and how to use memory | `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, Cursor/Windsurf/Kiro/Trae rules |
+| Usage guidance | Tells the agent when and how to use memory | `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, Cursor/Windsurf/Kiro/Trae rules |
 | Hooks | Captures useful session events when the agent exposes hook events | bundled by plugin packages or generated hook files |
 | Skills | Turns durable project knowledge into reusable task guidance | plugin skills, `memorix skills`, `memorix_promote` |
 | memcode | Opens a terminal coding agent that already uses Memorix memory | `memorix`, `memcode` |
@@ -38,6 +38,9 @@ Generated guidance also has scope:
 
 - Project guidance (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, Cursor/Windsurf/Kiro/Trae rules) may say the repository is configured for Memorix.
 - Plugin or skill package guidance is workspace-safe. It says to use Memorix when the active workspace has Memorix tools available.
+- `--global` writes user-level plugin, config, and hook surfaces where the host supports them.
+- Running the same setup command without `--global` is the repo-local path for one project only.
+- Hooks are only global where the host provides a global hook surface. If the host only supports project hooks, Memorix uses that project scope instead.
 
 ---
 
@@ -45,17 +48,17 @@ Generated guidance also has scope:
 
 | Agent | Recommended install | Official entry | What gets installed | Notes |
 | --- | --- | --- | --- | --- |
-| Claude Code | `memorix setup --agent claude` | Claude Code plugin marketplace | Local `memorix-local` marketplace, plugin-bundled stdio MCP, skills, hooks, plus `CLAUDE.md` guidance | Setup attempts `claude plugin marketplace add` and `claude plugin install memorix@memorix-local`. |
-| Codex | `memorix setup --agent codex` | Codex Personal marketplace plugin | Local plugin under `~/.codex/plugins/memorix`, Personal marketplace entry, plugin-bundled stdio MCP, skills, hooks, plus `AGENTS.md` guidance | Setup attempts `codex plugin add memorix@personal`. |
-| GitHub Copilot CLI | `memorix setup --agent copilot` | Copilot CLI plugin package | Local plugin under `~/.copilot/plugins/local/memorix` with MCP, skills, and hooks | Setup attempts `copilot plugin install <local-path>` when Copilot CLI is available. |
-| Cursor | `memorix setup --agent cursor` | Cursor MCP and rules config | Cursor MCP config, `.cursor/rules/memorix.mdc`, skills, and hook guidance | Reload Cursor after setup so it can pick up project config changes. |
-| Gemini CLI | `memorix setup --agent gemini-cli` | Gemini CLI extension | Extension under `~/.gemini/extensions/memorix` with MCP and `GEMINI.md` context | Gemini CLI remains supported; Antigravity is the newer Google agent lane. |
-| OpenCode | `memorix setup --agent opencode` | OpenCode local plugin file | `.opencode/plugins/memorix.js`, `opencode.json` MCP config, `.opencode/skills/*/SKILL.md`, plus `AGENTS.md` guidance | OpenCode loads project local plugin and skill files from `.opencode/`. |
-| Pi | `memorix setup --agent pi` | Pi package | Project `.pi/packages/memorix` package with extension and official skills, registered through `pi install <path> -l --approve` | Pi package resources can be checked with `pi config --approve`. Pi currently does not need a separate Memorix MCP config lane. |
-| Windsurf | `memorix setup --agent windsurf` | Windsurf MCP/rules/hooks config | stdio MCP config, `.windsurf/rules/memorix.md`, hook config | Uses Windsurf's current config surfaces. |
-| Kiro | `memorix setup --agent kiro` | Kiro MCP/steering/hooks config | MCP config, `.kiro/steering/memorix.md`, `.kiro/hooks/*.kiro.hook` | Uses Kiro steering and hook files. |
-| Antigravity | `memorix setup --agent antigravity` | Antigravity MCP/context/hooks config | MCP config, `GEMINI.md`, Gemini-style hook config | Uses Gemini-compatible project context. |
-| Trae | `memorix setup --agent trae` | Trae MCP/rules config | MCP config and `.trae/rules/project_rules.md` | Current support is MCP plus project rules. |
+| Claude Code | `memorix setup --agent claude --global` | Claude Code plugin marketplace | Local `memorix-local` marketplace, plugin-bundled stdio MCP, skills, hooks, plus `CLAUDE.md` guidance | Setup attempts `claude plugin marketplace add` and `claude plugin install memorix@memorix-local`. |
+| Codex | `memorix setup --agent codex --global` | Codex Personal marketplace plugin | Local plugin under `~/.codex/plugins/memorix`, Personal marketplace entry, plugin-bundled stdio MCP, skills, hooks, plus `AGENTS.md` guidance | Setup attempts `codex plugin add memorix@personal`. |
+| GitHub Copilot CLI | `memorix setup --agent copilot --global` | Copilot CLI plugin package | Local plugin under `~/.copilot/plugins/local/memorix` with MCP, skills, and hooks | Setup attempts `copilot plugin install <local-path>` when Copilot CLI is available. |
+| Cursor | `memorix setup --agent cursor --global` | Cursor MCP and rules config | Cursor MCP config, `.cursor/rules/memorix.mdc`, skills, and hook guidance | Reload Cursor after setup so it can pick up project config changes. |
+| Gemini CLI | `memorix setup --agent gemini-cli --global` | Gemini CLI extension | Extension under `~/.gemini/extensions/memorix` with MCP and `GEMINI.md` context | Gemini CLI remains supported; Antigravity is the newer Google agent lane. |
+| OpenCode | `memorix setup --agent opencode --global` | OpenCode local plugin file | Global setup writes `~/.config/opencode/plugins/memorix.js`, `~/.config/opencode/opencode.json`, skills, and `AGENTS.md` guidance; repo-local setup writes the `.opencode/` equivalents. | OpenCode loads local plugin and skill files from its config scope. |
+| Pi | `memorix setup --agent pi --global` | Pi package | User Pi package with extension and official skills, registered through `pi install <path> --approve` | Run without `--global` only when you want a project-local Pi package. Pi currently does not need a separate Memorix MCP config lane. |
+| Windsurf | `memorix setup --agent windsurf --global` | Windsurf MCP/rules/hooks config | stdio MCP config, `.windsurf/rules/memorix.md`, hook config | Uses Windsurf's current config surfaces. |
+| Kiro | `memorix setup --agent kiro --global` | Kiro MCP/steering/hooks config | MCP config, `.kiro/steering/memorix.md`, `.kiro/hooks/*.kiro.hook` | Uses Kiro steering and hook files. |
+| Antigravity | `memorix setup --agent antigravity --global` | Antigravity MCP/context/hooks config | MCP config, `GEMINI.md`, Gemini-style hook config | Uses Gemini-compatible project context. |
+| Trae | `memorix setup --agent trae --global` | Trae MCP/rules config | MCP config and `.trae/rules/project_rules.md` | Current support is MCP plus project rules. |
 | memcode | `memorix` or `memcode` | Bundled terminal agent | Built-in Memorix memory access | memcode uses the same project memory pool; it is not a separate memory silo. |
 | Any MCP client | Manual MCP config | MCP stdio or HTTP | `memorix serve` or `memorix background start` | Use stdio first unless you need a shared HTTP endpoint. |
 
@@ -67,23 +70,22 @@ Install Memorix:
 
 ```bash
 npm install -g memorix
-cd your-git-repo
-memorix init
+memorix init --global
 ```
 
-Then install the agent integration:
+Then install the agent integration you use:
 
 ```bash
-memorix setup --agent claude
-memorix setup --agent codex
-memorix setup --agent copilot
-memorix setup --agent cursor
-memorix setup --agent pi
-memorix setup --agent gemini-cli
-memorix setup --agent opencode
+memorix setup --agent claude --global
+memorix setup --agent codex --global
+memorix setup --agent copilot --global
+memorix setup --agent cursor --global
+memorix setup --agent pi --global
+memorix setup --agent gemini-cli --global
+memorix setup --agent opencode --global
 ```
 
-Use `memorix setup --agent all` only when you intentionally want every supported agent integration generated for the current machine/repo.
+Use `memorix setup --agent all --global` only when you intentionally want every supported agent integration generated for the current machine/user scope.
 
 ---
 
@@ -133,7 +135,7 @@ memorix hooks install --agent opencode
 
 Use them when you do not want the full setup package, or when you are updating one generated integration file by hand.
 
-`memorix integrate --agent <agent>` writes project guidance and MCP settings where supported. `memorix hooks install --agent <agent>` installs automatic capture where the agent exposes hook events.
+`memorix integrate --agent <agent>` writes usage guidance and MCP settings where supported. `memorix hooks install --agent <agent>` installs automatic capture where the agent exposes hook events.
 
 Shared files such as `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` are appended or updated carefully so existing project instructions are not replaced wholesale.
 

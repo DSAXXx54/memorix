@@ -18,7 +18,7 @@ It is designed for software work, not generic chat memory. Its core value is tha
 
 It supports:
 
-- agent setup packages (`memorix setup --agent <agent>`)
+- agent setup packages (`memorix setup --agent <agent> --global`)
 - stdio MCP (`memorix serve`)
 - HTTP MCP service + dashboard (`memorix background start` or `memorix serve-http --port 3211`)
 - bundled terminal agent (`memorix` or `memcode`) that uses the same shared memory pool
@@ -29,8 +29,8 @@ It supports:
 
 For the 1.1 release line, the visible product shape is:
 
-- `memorix setup --agent <agent>` is the default integration command for an existing coding agent or IDE
-- setup installs plugin packages where supported, MCP config, project guidance, hooks, and skills according to agent capability
+- `memorix setup --agent <agent> --global` is the default integration command for an existing coding agent or IDE
+- setup installs plugin packages where supported, MCP config, usage guidance, hooks, and skills according to agent capability
 - `memorix serve` remains the stdio MCP entry for IDEs and external agents
 - `memorix background start` and `memorix serve-http --port 3211` run the HTTP MCP service and dashboard
 - `memorix` / `memcode` open memcode, the bundled terminal agent
@@ -38,7 +38,7 @@ For the 1.1 release line, the visible product shape is:
 - model lanes are separate: `[memory.llm]` for formation/rerank/summaries, `[embedding]` for semantic search, `[agent]` for the model memcode talks to while coding
 - legacy `memorix.yml`, `.env`, and `~/.memorix/config.json` are compatibility inputs, not the recommended setup path
 - generated agent rules treat `memorix_session_start` as optional unless explicit session semantics matter
-- integration surfaces are agent-specific: Claude Code, Codex, and GitHub Copilot CLI receive plugin packages; Pi receives a project package; Gemini CLI receives a local extension package; OpenCode receives a local plugin file and project skill; Cursor and other agents receive MCP/rules/hooks where supported
+- integration surfaces are agent-specific: Claude Code, Codex, and GitHub Copilot CLI receive plugin packages; Pi receives a user-level package when setup runs with `--global`; Gemini CLI receives an extension package; OpenCode receives a plugin file and skill; Cursor and other agents receive MCP/rules/hooks where supported
 - privacy-safe diagnostics and receipts avoid raw chat, memory text, query text, tool payloads, and local file paths
 
 ---
@@ -88,7 +88,7 @@ Do not assume a plain folder path is enough.
 
 There are four practical entry points:
 
-- `memorix setup --agent <agent>` for installing Memorix into an existing agent
+- `memorix setup --agent <agent> --global` for installing Memorix into an existing agent
 - `memorix serve` for stdio MCP agents
 - `memorix background start` for an optional long-lived HTTP service
 - `memorix serve-http --port 3211` for foreground HTTP service work
@@ -97,7 +97,7 @@ There are four practical entry points:
 For most agent integrations, use:
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
 This installs the recommended integration package or config for that agent. Use raw `memorix serve` only when manually wiring an MCP client.
@@ -126,7 +126,7 @@ when the user wants:
 - explicit task/message/handoff/lock coordination
 - one shared HTTP service process
 
-Default recommendation: if the user wants memory inside an existing IDE or agent, start with `memorix setup --agent <agent>`. Use `memorix serve` only for manual MCP wiring. Use the CLI for direct workflows and automation because it does not depend on an IDE's MCP session lifecycle. Use memcode only when the user wants the bundled terminal agent. Reach for HTTP only when a shared background service, multi-client MCP access, Docker, or a live dashboard endpoint is actually needed.
+Default recommendation: if the user wants memory inside an existing IDE or agent, start with `memorix setup --agent <agent> --global`. Use `memorix serve` only for manual MCP wiring. Use the CLI for direct workflows and automation because it does not depend on an IDE's MCP session lifecycle. Use memcode only when the user wants the bundled terminal agent. Reach for HTTP only when a shared background service, multi-client MCP access, Docker, or a live dashboard endpoint is actually needed.
 
 Use:
 
@@ -193,7 +193,7 @@ git init
 ### Step 3. Initialize config
 
 ```bash
-memorix init
+memorix init --global
 ```
 
 `memorix init` is a scope selector, not just a project config generator. It lets the user choose between:
@@ -213,19 +213,19 @@ Use global config for personal provider credentials. Use project config for repo
 For an existing agent or IDE:
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
 Examples:
 
 ```bash
-memorix setup --agent claude
-memorix setup --agent codex
-memorix setup --agent copilot
-memorix setup --agent cursor
-memorix setup --agent pi
-memorix setup --agent gemini-cli
-memorix setup --agent opencode
+memorix setup --agent claude --global
+memorix setup --agent codex --global
+memorix setup --agent copilot --global
+memorix setup --agent cursor --global
+memorix setup --agent pi --global
+memorix setup --agent gemini-cli --global
+memorix setup --agent opencode --global
 ```
 
 What this installs depends on the target agent:
@@ -234,10 +234,12 @@ What this installs depends on the target agent:
 - Codex: local Personal marketplace plugin under `~/.codex/plugins/memorix`, marketplace entry at `~/.agents/plugins/marketplace.json`, best-effort `codex plugin add memorix@personal`, plugin-bundled stdio MCP, hooks, skills, plus `AGENTS.md` guidance.
 - GitHub Copilot CLI: local plugin package under `~/.copilot/plugins/local/memorix`, best-effort `copilot plugin install <local-path>`, plugin-bundled stdio MCP, hooks, and skills.
 - Cursor: Cursor MCP config, `.cursor/rules/memorix.mdc`, skills, and hook guidance through Cursor's project config surfaces.
-- Pi: project package under `.pi/packages/memorix`, best-effort `pi install <path> -l --approve`, extension-based hook capture, and a Memorix skill.
+- Pi: user Pi package with extension-based hook capture and a Memorix skill, registered through `pi install <path> --approve`; project-local setup uses `-l`.
 - Gemini CLI: local extension package under `~/.gemini/extensions/memorix`, extension-bundled stdio MCP and `GEMINI.md` context.
 - OpenCode: local plugin file, `opencode.json` MCP config, OpenCode skill, plus `AGENTS.md` guidance.
 - Windsurf, Kiro, Antigravity, Trae: MCP config plus rules/hooks where supported.
+
+Run the same setup command without `--global` only when you intentionally want repo-local guidance, rules, or hooks for a single Git project.
 
 If the user wants the bundled terminal agent:
 
@@ -324,7 +326,7 @@ Use this path when the user wants the full Memorix product model.
 
 ```bash
 npm install -g memorix
-memorix init
+memorix init --global
 ```
 
 ### Step 2. Ensure Git identity exists
@@ -424,7 +426,7 @@ Use this routing logic when helping a user.
 
 Choose:
 
-- `memorix setup --agent <agent>`
+- `memorix setup --agent <agent> --global`
 - stdio MCP as the default transport
 
 ### If the user says:
@@ -444,10 +446,10 @@ Choose:
 Use:
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
-This is the default integration package.
+This is the default integration package when you want the global/user-level install.
 
 Use `memorix integrate --agent <agent>` only when the user explicitly wants the older/manual generation path or wants to update one generated integration surface without running full setup.
 
@@ -458,10 +460,12 @@ Setup may write plugin packages, MCP config, project rules, settings, instructio
 Use:
 
 ```bash
-memorix hooks install --agent <agent>
+memorix hooks install --agent <agent> --global
 ```
 
 This is also explicit and opt-in.
+
+Use `memorix hooks install --agent <agent> --global` when the host supports a user-level/global hook surface and the user wants hooks without rewriting a repo. Use the project-scoped form when the user wants hooks only for the current repository.
 
 Use it as a fallback when the user only wants hook capture files. Do not assume the user wants every supported IDE directory generated.
 
@@ -504,10 +508,10 @@ Purpose:
 Typical use:
 
 ```bash
-memorix setup --agent claude
-memorix setup --agent codex
-memorix setup --agent cursor
-memorix setup --agent opencode
+memorix setup --agent claude --global
+memorix setup --agent codex --global
+memorix setup --agent cursor --global
+memorix setup --agent opencode --global
 ```
 
 ### `memorix integrate`
@@ -535,8 +539,8 @@ Purpose:
 Typical use:
 
 ```bash
-memorix hooks install --agent cursor
-memorix hooks install --agent opencode
+memorix hooks install --agent cursor --global
+memorix hooks install --agent opencode --global
 ```
 
 ### `memorix git-hook`
@@ -605,8 +609,8 @@ memorix status
 ### Project setup
 
 ```bash
-memorix init
-memorix setup --agent <agent>
+memorix init --global
+memorix setup --agent <agent> --global
 memorix integrate --agent <agent>
 memorix hooks install --agent <agent>
 memorix git-hook --force
@@ -644,7 +648,7 @@ git init
 
 - stdio MCP client -> `memorix serve`
 - HTTP/dashboard/shared-service use case -> `memorix background start` by default, or `memorix serve-http --port 3211` when foreground control is required
-- existing IDE/agent integration -> `memorix setup --agent <agent>`
+- existing IDE/agent integration -> `memorix setup --agent <agent> --global`
 
 ### 3. Is the background HTTP service actually running?
 
@@ -693,7 +697,7 @@ If not, the agent may drift into the wrong project bucket or fail closed.
 Use:
 
 ```bash
-memorix setup --agent <agent>
+memorix setup --agent <agent> --global
 ```
 
 Use `memorix integrate --agent <agent>` or `memorix hooks install --agent <agent>` only for fallback/manual updates of one surface.

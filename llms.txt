@@ -6,7 +6,7 @@ Memorix gives coding agents persistent, project-aware memory across sessions, ID
 
 ## Entry Points
 
-- `memorix setup --agent <agent>` installs the recommended integration package or config.
+- `memorix setup --agent <agent> --global` installs the recommended user-level integration package or config.
 - `memorix setup --list` lists supported agent entry points.
 - `memorix serve` starts the manual stdio MCP server for IDEs and agents.
 - `memorix background start` starts the HTTP MCP service and dashboard.
@@ -61,8 +61,8 @@ Legacy `memorix.yml`, `.env`, and `~/.memorix/config.json` are compatibility inp
 
 ```bash
 npm install -g memorix
-memorix init
-memorix setup --agent claude
+memorix init --global
+memorix setup --agent claude --global
 ```
 
 Generic MCP client config:

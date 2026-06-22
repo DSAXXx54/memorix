@@ -51,6 +51,7 @@ export interface SetupPlan {
 export interface PluginInstallOptions {
   agent: Extract<AgentName, 'claude' | 'codex' | 'copilot'>;
   homeDir?: string;
+  includeHooks?: boolean;
 }
 
 export interface PluginInstallResult {
@@ -79,6 +80,8 @@ export interface McpConfigInstallResult {
 
 export interface PiPackageInstallOptions {
   packageDir?: string;
+  homeDir?: string;
+  global?: boolean;
 }
 
 export interface PiPackageInstallResult {
@@ -183,6 +186,33 @@ async function writeOfficialSkills(skillsRoot: string): Promise<string[]> {
     written.push(skillPath);
   }
   return written;
+}
+
+async function stripHookCaptureFromPlugin(pluginPath: string, agent: PluginInstallOptions['agent']): Promise<void> {
+  await rm(path.join(pluginPath, 'hooks'), { recursive: true, force: true });
+
+  const manifestPath = agent === 'claude'
+    ? path.join(pluginPath, '.claude-plugin', 'plugin.json')
+    : agent === 'codex'
+      ? path.join(pluginPath, '.codex-plugin', 'plugin.json')
+      : path.join(pluginPath, 'plugin.json');
+
+  try {
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf-8')) as Record<string, unknown>;
+    delete manifest.hooks;
+
+    const iface = manifest.interface;
+    if (iface && typeof iface === 'object' && !Array.isArray(iface)) {
+      const record = iface as Record<string, unknown>;
+      if (Array.isArray(record.capabilities)) {
+        record.capabilities = record.capabilities.filter((capability) => capability !== 'Hooks');
+      }
+    }
+
+    await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf-8');
+  } catch {
+    // Older or third-party plugin templates may not have a manifest at this path.
+  }
 }
 
 function relativePosix(from: string, to: string): string {
@@ -399,6 +429,7 @@ export async function installPluginPackage(options: PluginInstallOptions): Promi
   const home = options.homeDir ?? homedir();
   const packageRoot = findPackageRoot();
   const source = path.join(packageRoot, 'plugins', options.agent, 'memorix');
+  const includeHooks = options.includeHooks ?? true;
   if (!existsSync(source)) {
     throw new Error(`Plugin package template not found: ${source}`);
   }
@@ -407,6 +438,7 @@ export async function installPluginPackage(options: PluginInstallOptions): Promi
     const pluginPath = path.join(home, '.codex', 'plugins', 'memorix');
     const marketplacePath = path.join(home, '.agents', 'plugins', 'marketplace.json');
     await copyDir(source, pluginPath);
+    if (!includeHooks) await stripHookCaptureFromPlugin(pluginPath, 'codex');
     await writeOfficialSkills(path.join(pluginPath, 'skills'));
     await upsertCodexMarketplace(marketplacePath, pluginPath);
     return {
@@ -420,6 +452,7 @@ export async function installPluginPackage(options: PluginInstallOptions): Promi
   if (options.agent === 'copilot') {
     const pluginPath = path.join(home, '.copilot', 'plugins', 'local', 'memorix');
     await copyDir(source, pluginPath);
+    if (!includeHooks) await stripHookCaptureFromPlugin(pluginPath, 'copilot');
     await writeOfficialSkills(path.join(pluginPath, 'skills'));
     return {
       agent: 'copilot',
@@ -432,6 +465,7 @@ export async function installPluginPackage(options: PluginInstallOptions): Promi
   const marketplacePath = path.join(marketplaceRoot, '.claude-plugin', 'marketplace.json');
   const pluginPath = path.join(marketplaceRoot, 'plugins', 'memorix');
   await copyDir(source, pluginPath);
+  if (!includeHooks) await stripHookCaptureFromPlugin(pluginPath, 'claude');
   await writeOfficialSkills(path.join(pluginPath, 'skills'));
   await writeClaudeMarketplace(marketplacePath);
   return {
@@ -469,13 +503,20 @@ export async function installPiPackage(options: PiPackageInstallOptions = {}): P
     throw new Error(`Pi package template not found: ${source}`);
   }
 
-  const packagePath = options.packageDir ?? path.join(process.cwd(), '.pi', 'packages', 'memorix');
+  const defaultRoot = options.global
+    ? path.join(options.homeDir ?? homedir(), '.pi', 'agent', 'packages')
+    : path.join(process.cwd(), '.pi', 'packages');
+  const packagePath = options.packageDir ?? path.join(defaultRoot, 'memorix');
   await copyDir(source, packagePath);
   await writeOfficialSkills(path.join(packagePath, 'skills'));
+  const installHint = options.global
+    ? `Setup runs \`pi install "${packagePath}" --approve\`. If Pi is unavailable, run that command after installing Pi.`
+    : `Setup runs \`pi install "${packagePath}" -l --approve\`. If Pi is unavailable, run that command from the project root after installing Pi.`;
+
   return {
     agent: 'pi',
     packagePath,
-    installHint: `Setup runs \`pi install "${packagePath}" -l --approve\`. If Pi is unavailable, run that command from the project root after installing Pi.`,
+    installHint,
   };
 }
 
@@ -570,28 +611,44 @@ function tryInstallCopilotPlugin(pluginPath: string): { ok: boolean; message: st
   };
 }
 
-function tryInstallPiPackage(packagePath: string): { ok: boolean; message: string } {
-  const result = spawnSync('pi', ['install', packagePath, '-l', '--approve'], {
+function tryInstallPiPackage(packagePath: string, global = false): { ok: boolean; message: string } {
+  const args = global
+    ? ['install', packagePath, '--approve']
+    : ['install', packagePath, '-l', '--approve'];
+  const result = spawnSync('pi', args, {
     encoding: 'utf-8',
     stdio: 'pipe',
     shell: process.platform === 'win32',
   });
 
   if (result.status === 0) {
-    return { ok: true, message: 'pi: package installed into project .pi/settings.json' };
+    return {
+      ok: true,
+      message: global
+        ? 'pi: package installed into user settings'
+        : 'pi: package installed into project .pi/settings.json',
+    };
   }
 
   const output = `${result.stderr || ''}\n${result.stdout || ''}`.toLowerCase();
   if (output.includes('already') || output.includes('no changes')) {
-    return { ok: true, message: 'pi: package already registered in project settings' };
+    return {
+      ok: true,
+      message: global
+        ? 'pi: package already registered in user settings'
+        : 'pi: package already registered in project settings',
+    };
   }
 
   const detail = (result.stderr || result.stdout || result.error?.message || '').trim();
+  const installCommand = global
+    ? `pi install "${packagePath}" --approve`
+    : `pi install "${packagePath}" -l --approve`;
   return {
     ok: false,
     message: detail
       ? `pi: package written, but automatic install did not finish: ${detail}`
-      : `pi: package written. Run \`pi install "${packagePath}" -l --approve\`.`,
+      : `pi: package written. Run \`${installCommand}\`.`,
   };
 }
 
@@ -604,7 +661,10 @@ async function installAgentSetup(agent: AgentName, plan: SetupPlan, global: bool
   const wantsMcpConfig = plan.mcp !== 'none' && agent !== 'pi';
 
   if (hasPluginPackage) {
-    const result = await installPluginPackage({ agent: agent as PluginInstallOptions['agent'] });
+    const result = await installPluginPackage({
+      agent: agent as PluginInstallOptions['agent'],
+      includeHooks: plan.actions.includes('hooks'),
+    });
     p.log.success(`${agent}: plugin package -> ${result.pluginPath}`);
     if (result.marketplacePath) {
       p.log.info(`${agent}: marketplace -> ${result.marketplacePath}`);
@@ -632,9 +692,9 @@ async function installAgentSetup(agent: AgentName, plan: SetupPlan, global: bool
   }
 
   if (hasPiPackage) {
-    const result = await installPiPackage();
+    const result = await installPiPackage({ global });
     p.log.success(`${agent}: package -> ${result.packagePath}`);
-    const install = tryInstallPiPackage(result.packagePath);
+    const install = tryInstallPiPackage(result.packagePath, global);
     if (install.ok) p.log.success(install.message);
     else p.log.warn(install.message);
     p.log.info(result.installHint);
@@ -718,7 +778,7 @@ export default defineCommand({
     },
     global: {
       type: 'boolean',
-      description: 'Install global hooks/rules where the target supports them',
+      description: 'Install user/global MCP, rules, hooks, and plugin entries where the target supports them',
       required: false,
     },
     noHooks: {
