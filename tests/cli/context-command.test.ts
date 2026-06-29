@@ -7,7 +7,7 @@ import codegraphCommand from '../../src/cli/commands/codegraph.js';
 import contextCommand from '../../src/cli/commands/context.js';
 import doctorCommand from '../../src/cli/commands/doctor.js';
 import explainCommand from '../../src/cli/commands/explain.js';
-import { storeObservation } from '../../src/memory/observations.js';
+import { initObservations, storeObservation } from '../../src/memory/observations.js';
 import { closeAllDatabases } from '../../src/store/sqlite-db.js';
 import { resetObservationStore } from '../../src/store/obs-store.js';
 import { resetDb } from '../../src/store/orama-store.js';
@@ -89,6 +89,33 @@ describe('project context CLI commands', () => {
       projectId: 'local/repo',
     });
   }
+
+  async function seedMemoryOnly() {
+    await initObservations(dataDir);
+    await storeObservation({
+      entityName: 'auth',
+      type: 'decision',
+      title: 'authMiddleware keeps JWT verification centralized',
+      narrative: 'Continue edits in src/auth.ts when changing login verification.',
+      filesModified: ['src/auth.ts'],
+      projectId: 'local/repo',
+    });
+  }
+
+  it('auto-refreshes code memory when context runs before a manual scan', async () => {
+    await seedMemoryOnly();
+
+    const result = await runCommand(contextCommand, { json: true });
+
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.overview.code.files).toBe(3);
+    expect(parsed.overview.code.languages).toEqual([
+      { language: 'python', files: 1 },
+      { language: 'typescript', files: 2 },
+    ]);
+    expect(parsed.overview.suggestedReads).toContain('src/auth.ts');
+  });
 
   it('shows a user-facing project context with code memory and suggested reads', async () => {
     await seedProjectContext();

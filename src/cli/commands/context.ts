@@ -1,8 +1,17 @@
 import { defineCommand } from 'citty';
-import { CodeGraphStore } from '../../codegraph/store.js';
-import { buildProjectContextOverview, formatProjectContextOverview } from '../../codegraph/project-context.js';
+import {
+  buildAutoProjectContext,
+  formatAutoProjectContextSummary,
+  type AutoContextRefreshMode,
+} from '../../codegraph/auto-context.js';
 import { getAllObservations } from '../../memory/observations.js';
 import { emitError, emitResult, getCliProjectContext } from './operator-shared.js';
+
+function coerceRefreshMode(input?: string): AutoContextRefreshMode {
+  const value = (input ?? 'auto').trim().toLowerCase();
+  if (value === 'always' || value === 'never' || value === 'auto') return value;
+  throw new Error('refresh must be one of: auto, always, never');
+}
 
 export default defineCommand({
   meta: {
@@ -10,6 +19,8 @@ export default defineCommand({
     description: 'Show the current project context Memorix can safely use',
   },
   args: {
+    task: { type: 'string', description: 'Current task for context shaping' },
+    refresh: { type: 'string', description: 'Project scan policy: auto, always, or never' },
     json: { type: 'boolean', description: 'Emit machine-readable JSON output' },
   },
   run: async ({ args }) => {
@@ -17,12 +28,24 @@ export default defineCommand({
 
     try {
       const { project, dataDir } = await getCliProjectContext();
-      const store = new CodeGraphStore();
-      await store.init(dataDir);
-      const observations = getAllObservations();
-      const overview = buildProjectContextOverview({ project, store, observations });
+      const context = await buildAutoProjectContext({
+        project,
+        dataDir,
+        observations: getAllObservations(),
+        task: args.task as string | undefined,
+        refresh: coerceRefreshMode(args.refresh as string | undefined),
+      });
 
-      emitResult({ project, overview }, formatProjectContextOverview(overview), asJson);
+      emitResult(
+        {
+          project,
+          overview: context.overview,
+          refresh: context.refresh,
+          ...(context.task ? { task: context.task } : {}),
+        },
+        formatAutoProjectContextSummary(context),
+        asJson,
+      );
     } catch (error) {
       emitError(error instanceof Error ? error.message : String(error), asJson);
     }
