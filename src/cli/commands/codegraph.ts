@@ -17,6 +17,17 @@ function formatStatus(status: ReturnType<CodeGraphStore['status']>): string {
   ].join('\n');
 }
 
+function formatUsageHint(): string {
+  return [
+    'Usage:',
+    '  memorix codegraph refresh',
+    '  memorix codegraph status --json',
+    '  memorix codegraph context-pack --task "continue auth bug"',
+    '',
+    'Tip: use `memorix context --task "..."` for the default agent-ready project context.',
+  ].join('\n');
+}
+
 export default defineCommand({
   meta: {
     name: 'codegraph',
@@ -37,11 +48,15 @@ export default defineCommand({
       const { project, dataDir } = await getCliProjectContext();
       const store = new CodeGraphStore();
       await store.init(dataDir);
+      const explicitAction = Boolean(positional[0] || (args.action as string | undefined));
 
       switch (action) {
         case 'status': {
           const status = store.status(project.id);
-          emitResult({ project, status }, formatStatus(status), asJson);
+          const text = explicitAction || asJson
+            ? formatStatus(status)
+            : `${formatStatus(status)}\n\n${formatUsageHint()}`;
+          emitResult({ project, status }, text, asJson);
           return;
         }
 

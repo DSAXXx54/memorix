@@ -138,4 +138,43 @@ describe('buildContextPackPrompt', () => {
 
     expect(selected.map(obs => obs.id)).toEqual([2]);
   });
+
+  it('caps prompt code facts and suggested reads while filtering generated outputs', () => {
+    const text = buildContextPackPrompt({
+      task: 'continue auth work',
+      memories: [],
+      codeFacts: [
+        { path: 'src/auth.ts', symbol: 'authMiddleware', kind: 'function', line: 3 },
+        { path: 'dist/auth.js', symbol: 'authMiddleware', kind: 'function', line: 3 },
+        { path: 'packages/agent-core/dist/index.js', symbol: 'status', kind: 'function', line: 1 },
+        { path: 'packages\\agent-core\\dist\\index.js', symbol: 'statusWin', kind: 'function', line: 2 },
+        { path: 'src/config.ts', symbol: 'configureAuth', kind: 'function', line: 8 },
+        { path: 'src/router.ts', symbol: 'routeAuth', kind: 'function', line: 12 },
+        { path: 'src/session.ts', symbol: 'sessionAuth', kind: 'function', line: 20 },
+        { path: 'src/extra.ts', symbol: 'extraAuth', kind: 'function', line: 40 },
+        { path: 'src/overflow.ts', symbol: 'overflowAuth', kind: 'function', line: 50 },
+      ],
+      warnings: [],
+      suggestedReads: [
+        'src/auth.ts',
+        'dist/auth.js',
+        'packages/agent-core/dist/index.js',
+        'packages\\agent-core\\dist\\index.js',
+        'src/config.ts',
+        'src/router.ts',
+        'src/session.ts',
+        'src/extra.ts',
+        'src/overflow.ts',
+      ],
+      suggestedVerification: [],
+    });
+
+    expect(text).toContain('src/auth.ts');
+    expect(text).toContain('src/config.ts');
+    expect(text).not.toContain('dist/auth.js');
+    expect(text).not.toContain('packages/agent-core/dist/index.js');
+    expect(text).not.toContain('packages\\agent-core\\dist\\index.js');
+    expect(text).toContain('src/extra.ts');
+    expect(text).not.toContain('src/overflow.ts');
+  });
 });

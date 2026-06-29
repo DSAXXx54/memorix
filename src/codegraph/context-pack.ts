@@ -68,6 +68,10 @@ function timestampOf(observation: ContextPackObservation): number {
   return Date.parse(observation.updatedAt ?? observation.createdAt ?? '') || 0;
 }
 
+function isGeneratedPath(path: string): boolean {
+  return /(^|\/)(dist|build|coverage|\.next|\.turbo|node_modules)\//i.test(path.replace(/\\/g, '/'));
+}
+
 function relevanceScore(observation: ContextPackObservation, taskTokens: string[]): number {
   if (taskTokens.length === 0) return 0;
   const title = observation.title.toLowerCase();
@@ -193,6 +197,8 @@ export function assembleContextPack(input: AssembleContextPackInput): ContextPac
 
 export function buildContextPackPrompt(pack: ContextPack): string {
   const lines: string[] = ['## Task', pack.task, '', '## Relevant Memories'];
+  const visibleCodeFacts = pack.codeFacts.filter(fact => !isGeneratedPath(fact.path)).slice(0, 5);
+  const visibleSuggestedReads = pack.suggestedReads.filter(path => !isGeneratedPath(path)).slice(0, 5);
 
   if (pack.memories.length === 0) lines.push('- none');
   for (const memory of pack.memories) {
@@ -200,8 +206,8 @@ export function buildContextPackPrompt(pack: ContextPack): string {
   }
 
   lines.push('', '## Current Code Facts');
-  if (pack.codeFacts.length === 0) lines.push('- none');
-  for (const fact of pack.codeFacts) {
+  if (visibleCodeFacts.length === 0) lines.push('- none');
+  for (const fact of visibleCodeFacts) {
     const location = fact.line ? `${fact.path}:${fact.line}` : fact.path;
     const symbol = fact.symbol ? ` ${fact.symbol}${fact.kind ? ` (${fact.kind})` : ''}` : '';
     lines.push(`- ${location}${symbol}`);
@@ -214,8 +220,8 @@ export function buildContextPackPrompt(pack: ContextPack): string {
   }
 
   lines.push('', '## Suggested Next Reads');
-  if (pack.suggestedReads.length === 0) lines.push('- none');
-  pack.suggestedReads.forEach((path, index) => lines.push(`${index + 1}. ${path}`));
+  if (visibleSuggestedReads.length === 0) lines.push('- none');
+  visibleSuggestedReads.forEach((path, index) => lines.push(`${index + 1}. ${path}`));
 
   lines.push('', '## Suggested Verification');
   if (pack.suggestedVerification.length === 0) lines.push('- none');

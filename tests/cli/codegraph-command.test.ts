@@ -93,6 +93,23 @@ describe('codegraph CLI command', () => {
     });
   });
 
+  it('shows primary usage hints with the default status output', async () => {
+    const result = await runCommand({});
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Usage:');
+    expect(result.stdout).toContain('memorix codegraph refresh');
+    expect(result.stdout).toContain('memorix codegraph context-pack --task');
+  });
+
+  it('keeps explicit text status output focused on status only', async () => {
+    const result = await runCommand({ _: ['status'] });
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('CodeGraph Memory: lite');
+    expect(result.stdout).not.toContain('Usage:');
+  });
+
   it('builds a context pack from code-bound memories', async () => {
     await runCommand({ _: ['refresh'], json: true });
     await initObservationStore(dataDir);
