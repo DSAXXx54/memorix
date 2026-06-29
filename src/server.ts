@@ -1136,6 +1136,74 @@ export async function createMemorixServer(
     },
   );
 
+  server.registerTool(
+    'memorix_codegraph_status',
+    {
+      title: 'CodeGraph Memory Status',
+      description: 'Show CodeGraph Memory provider and index status for the current project.',
+      inputSchema: {},
+    },
+    async () => {
+      const unresolved = requireResolvedProject('show CodeGraph Memory status for the current project');
+      if (unresolved) return unresolved;
+
+      const { CodeGraphStore } = await import('./codegraph/store.js');
+      const store = new CodeGraphStore();
+      await store.init(projectDir);
+      const status = store.status(project.id);
+
+      return {
+        content: [{ type: 'text' as const, text: JSON.stringify(status, null, 2) }],
+      };
+    },
+  );
+
+  server.registerTool(
+    'memorix_context_pack',
+    {
+      title: 'Context Pack',
+      description:
+        'Build a prompt-ready working context pack for a coding task. ' +
+        'Combines relevant memories, CodeGraph Memory facts, freshness warnings, suggested reads, and verification hints.',
+      inputSchema: {
+        task: z.string().describe('Current coding task or question'),
+        limit: z.number().optional().describe('Max active memories to inspect before code-ref filtering (default: 20)'),
+      },
+    },
+    async ({ task, limit }) => {
+      const unresolved = requireResolvedProject('build a context pack for the current project');
+      if (unresolved) return unresolved;
+
+      return withFreshIndex(async () => {
+        const { CodeGraphStore } = await import('./codegraph/store.js');
+        const { assembleContextPack, buildContextPackPrompt } = await import('./codegraph/context-pack.js');
+        const store = new CodeGraphStore();
+        await store.init(projectDir);
+
+        const observations = getAllObservations()
+          .filter(obs => obs.projectId === project.id && (obs.status ?? 'active') === 'active')
+          .slice(-coerceNumber(limit, 20))
+          .reverse();
+        const refs = observations.flatMap(obs => store.listObservationRefs(project.id, obs.id));
+        const fileIds = new Set(refs.map(ref => ref.fileId).filter(Boolean));
+        const files = store.listFiles(project.id).filter(file => fileIds.has(file.id));
+        const symbols = files.flatMap(file => store.listSymbolsForFile(file.id));
+        const pack = assembleContextPack({
+          task,
+          observations: observations.map(obs => ({ id: obs.id, title: obs.title, type: obs.type })),
+          refs,
+          files,
+          symbols,
+        });
+        const text = buildContextPackPrompt(pack);
+
+        return {
+          content: [{ type: 'text' as const, text }],
+        };
+      });
+    },
+  );
+
   /**
    * memorix_resolve — Mark memories as resolved/completed
    *
