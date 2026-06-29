@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import codegraphCommand from '../../src/cli/commands/codegraph.js';
 import contextCommand from '../../src/cli/commands/context.js';
+import doctorCommand from '../../src/cli/commands/doctor.js';
 import explainCommand from '../../src/cli/commands/explain.js';
 import { storeObservation } from '../../src/memory/observations.js';
 import { closeAllDatabases } from '../../src/store/sqlite-db.js';
@@ -148,5 +149,25 @@ describe('project context CLI commands', () => {
       status: 'current',
     });
     expect(parsed.explain.overview.code.files).toBe(3);
+  });
+
+  it('includes code memory health in doctor JSON', async () => {
+    await seedProjectContext();
+
+    const result = await runCommand(doctorCommand, { json: true });
+
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout);
+    expect(parsed.codeMemory).toMatchObject({
+      provider: 'lite',
+      files: 3,
+      symbols: 3,
+      refs: 2,
+      freshness: {
+        current: 2,
+        suspect: 0,
+        stale: 0,
+      },
+    });
   });
 });
