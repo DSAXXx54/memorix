@@ -1,7 +1,7 @@
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { indexProjectLite } from '../../src/codegraph/lite-provider.js';
 
 let root: string | null = null;
@@ -122,5 +122,51 @@ describe('CodeGraph Lite provider', () => {
       'System',
       'string',
     ]));
+  });
+
+  it('skips common generated output directories by default', async () => {
+    const dir = makeRoot();
+    mkdirSync(join(dir, 'src'), { recursive: true });
+    writeFileSync(join(dir, 'src', 'main.ts'), 'export function main() {}\n');
+
+    for (const generatedDir of ['dist', 'build', 'coverage', '.next', '.turbo', 'node_modules']) {
+      mkdirSync(join(dir, generatedDir), { recursive: true });
+      writeFileSync(join(dir, generatedDir, 'generated.ts'), 'export function generated() {}\n');
+    }
+
+    const result = await indexProjectLite({ projectId: 'org/repo', projectRoot: dir });
+
+    expect(result.files.map(file => file.path)).toEqual(['src/main.ts']);
+    expect(result.symbols.map(symbol => symbol.name)).toEqual(['main']);
+  });
+
+  it('continues indexing when a discovered file cannot be read', async () => {
+    vi.resetModules();
+    vi.doMock('node:fs', () => ({
+      readdirSync: vi.fn((dir: string) => {
+        if (dir.endsWith('repo')) {
+          return [{ name: 'src', isDirectory: () => true, isFile: () => false }];
+        }
+        return [
+          { name: 'stable.ts', isDirectory: () => false, isFile: () => true },
+          { name: 'vanishing.ts', isDirectory: () => false, isFile: () => true },
+        ];
+      }),
+      readFileSync: vi.fn((file: string) => {
+        if (file.endsWith('vanishing.ts')) {
+          throw Object.assign(new Error('file disappeared'), { code: 'ENOENT' });
+        }
+        return 'export function stable() {}\n';
+      }),
+      statSync: vi.fn(() => ({ mtimeMs: 42, size: 28 })),
+    }));
+
+    const { indexProjectLite: mockedIndexProjectLite } = await import('../../src/codegraph/lite-provider.js');
+    const result = await mockedIndexProjectLite({ projectId: 'org/repo', projectRoot: join(tmpdir(), 'repo') });
+
+    expect(result.files.map(file => file.path)).toEqual(['src/stable.ts']);
+    expect(result.symbols.map(symbol => symbol.name)).toEqual(['stable']);
+    vi.doUnmock('node:fs');
+    vi.resetModules();
   });
 });

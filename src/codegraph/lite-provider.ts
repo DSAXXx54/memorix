@@ -186,7 +186,14 @@ function walk(root: string, exclude: string[], maxFiles: number): string[] {
   const out: string[] = [];
   const visit = (dir: string) => {
     if (out.length >= maxFiles) return;
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    let entries: ReturnType<typeof readdirSync>;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
       const abs = join(dir, entry.name);
       const rel = normalizeCodePath(relative(root, abs));
       if (isExcluded(rel, exclude)) continue;
@@ -282,7 +289,15 @@ function extractImportEdges(projectId: string, file: CodeFile, text: string, ind
 }
 
 export async function indexProjectLite(options: LiteIndexOptions): Promise<LiteIndexResult> {
-  const exclude = options.exclude ?? ['node_modules/**', 'dist/**', '.git/**'];
+  const exclude = options.exclude ?? [
+    'node_modules/**',
+    'dist/**',
+    'build/**',
+    'coverage/**',
+    '.next/**',
+    '.turbo/**',
+    '.git/**',
+  ];
   const maxFiles = options.maxFiles ?? 5000;
   const indexedAt = new Date().toISOString();
   const paths = walk(options.projectRoot, exclude, maxFiles);
@@ -292,8 +307,14 @@ export async function indexProjectLite(options: LiteIndexOptions): Promise<LiteI
 
   for (const abs of paths) {
     const rel = normalizeCodePath(relative(options.projectRoot, abs));
-    const text = readFileSync(abs, 'utf-8');
-    const stat = statSync(abs);
+    let text: string;
+    let stat: ReturnType<typeof statSync>;
+    try {
+      text = readFileSync(abs, 'utf-8');
+      stat = statSync(abs);
+    } catch {
+      continue;
+    }
     const file: CodeFile = {
       id: makeCodeFileId(options.projectId, rel),
       projectId: options.projectId,
