@@ -72,6 +72,7 @@ The public docs are organized by user intent:
 | System shape, data flows, memory layers | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Design decisions and rationale | [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md) |
 | Module-by-module notes | [MODULES.md](MODULES.md) |
+| CodeGraph Memory / Context Fabric design | [2026-06-29-codegraph-memory-context-fabric-design.md](superpowers/specs/2026-06-29-codegraph-memory-context-fabric-design.md) |
 | Historical cloud sync and multi-agent research | [CLOUD_SYNC_AND_MULTI_AGENT_RESEARCH.md](CLOUD_SYNC_AND_MULTI_AGENT_RESEARCH.md) |
 | Known issues and old roadmap notes | [KNOWN_ISSUES_AND_ROADMAP.md](KNOWN_ISSUES_AND_ROADMAP.md) |
 
